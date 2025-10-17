@@ -70,7 +70,7 @@ const TopNavBar: React.FC = () => {
 
   const fetchTotalLoggedInCount = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/logged-in-count", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/logged-in-count`, {
         headers: { "x-api-key": API_KEY },
       });
       if (res.data.success) {

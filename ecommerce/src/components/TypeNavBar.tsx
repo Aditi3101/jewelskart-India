@@ -12,7 +12,7 @@ const TypeNavBar: React.FC = () => {
   const [types, setTypes] = useState<Type[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/types")
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/types`)
       .then((res) => res.json())
       .then((data) => {
         console.log("Types data:", data);

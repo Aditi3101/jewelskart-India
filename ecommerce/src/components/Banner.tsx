@@ -16,7 +16,7 @@ const Banner: React.FC = () => {
 
   useEffect(() => {
     // Fetch homepage banners
-    fetch("http://localhost:5000/api/banners/homepage")
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/banners/homepage`)
       .then((res) => res.json())
       .then((data) => {
         const filtered = data.filter(
