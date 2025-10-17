@@ -36,7 +36,7 @@ const SearchBar: React.FC = () => {
       recognitionInstance.interimResults = false;
       recognitionInstance.lang = 'en-US';
       
-      recognitionInstance.onresult = (event) => {
+      recognitionInstance.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
         setQuery(transcript);
         setIsListening(false);
