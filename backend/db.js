@@ -27,6 +27,15 @@ import mysql from "mysql2";
 import dotenv from "dotenv";
 dotenv.config();
 
+// Debug environment variables
+console.log('🔍 Database config:', {
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  database: process.env.DB_NAME || "jewelskart",
+  port: process.env.DB_PORT || 3306,
+  hasPassword: !!process.env.DB_PASSWORD
+});
+
 const db = mysql.createConnection({
   host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "root",
