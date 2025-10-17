@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   preview: {
     host: '0.0.0.0',
-    port: 4173
+    port: 4173,
+    allowedHosts: ['jewelskart-india.onrender.com']
   }
 })
