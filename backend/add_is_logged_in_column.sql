@@ -1,0 +1,2 @@
+ALTER TABLE registration
+ADD COLUMN is_logged_in BOOLEAN NOT NULL DEFAULT FALSE;
