@@ -26,7 +26,11 @@ const SALT_ROUNDS = 10;
 // CORS setup
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: [
+      "http://localhost:5173", 
+      "http://localhost:5174",
+      "https://jewelskart-india.onrender.com"
+    ],
     methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true,
   })
