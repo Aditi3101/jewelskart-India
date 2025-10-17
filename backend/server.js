@@ -1809,9 +1809,29 @@ app.post("/api/reviews", async (req, res) => {
 });
 
 // ==============================
+// 🏠 ROOT ROUTE
+// ==============================
+
+app.get("/", (req, res) => {
+  res.json({ 
+    success: true, 
+    message: "Jewelskart Backend API is running!",
+    version: "1.0.0",
+    endpoints: {
+      auth: "/login, /register",
+      products: "/api/products",
+      cart: "/cart",
+      orders: "/orders",
+      admin: "/admin/*"
+    }
+  });
+});
+
+// ==============================
 // ✅ START SERVER
 // ==============================
 
-app.listen(5000, () => {
-  console.log("🚀 Backend running on http://localhost:5000");
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Backend running on port ${PORT}`);
 });

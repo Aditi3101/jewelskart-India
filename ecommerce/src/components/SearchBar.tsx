@@ -16,7 +16,7 @@ const SearchBar: React.FC = () => {
     if (query.trim()) {
       const delayDebounce = setTimeout(() => {
         axios
-          .get(`http://localhost:5000/api/search?query=${encodeURIComponent(query)}`)
+          .get(`${import.meta.env.VITE_API_URL}/api/search?query=${encodeURIComponent(query)}`)
           .then((res) => setSuggestions(res.data))
           .catch(() => setSuggestions([]));
       }, 300);
