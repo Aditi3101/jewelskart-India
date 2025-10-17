@@ -21,7 +21,7 @@ const HomeCarousel: React.FC = () => {
     const fetchBanners = async () => {
       try {
         const res = await axios.get<Banner[]>(
-          "https://jewelskart-india.onrender.com/api/banners/carousal" // ✅ UPDATED
+          "https://jewelskart-backend.onrender.com/api/banners/carousal" // ✅ UPDATED
         );
        const homepageBanners = res.data; // ✅ no filtering
 

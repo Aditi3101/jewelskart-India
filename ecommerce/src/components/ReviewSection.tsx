@@ -23,7 +23,7 @@ const ReviewSection: React.FC = () => {
 
   const fetchReviews = async () => {
     try {
-      const response = await axios.get("https://jewelskart-india.onrender.com/api/all-reviews", {
+      const response = await axios.get("https://jewelskart-backend.onrender.com/api/all-reviews", {
         headers: { "x-api-key": "your_super_secret_api_key_123" }
       });
       setReviews(response.data);

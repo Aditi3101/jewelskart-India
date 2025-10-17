@@ -16,7 +16,7 @@ const Banner: React.FC = () => {
 
   useEffect(() => {
     // Fetch homepage banners
-    fetch('https://jewelskart-india.onrender.com/api/banners/homepage')
+    fetch('https://jewelskart-backend.onrender.com/api/banners/homepage')
       .then((res) => res.json())
       .then((data) => {
         const filtered = data.filter(

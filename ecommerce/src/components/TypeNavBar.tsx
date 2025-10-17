@@ -12,7 +12,7 @@ const TypeNavBar: React.FC = () => {
   const [types, setTypes] = useState<Type[]>([]);
 
   useEffect(() => {
-    fetch('https://jewelskart-india.onrender.com/api/types')
+    fetch('https://jewelskart-backend.onrender.com/api/types')
       .then((res) => res.json())
       .then((data) => {
         console.log("Types data:", data);

@@ -13,7 +13,7 @@ const HomeCategoryCards: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
-    fetch('https://jewelskart-india.onrender.com/categories')
+    fetch('https://jewelskart-backend.onrender.com/categories')
       .then(res => res.json())
       .then(data => setCategories(data))
       .catch(err => console.error('Error fetching categories:', err));
