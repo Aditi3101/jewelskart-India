@@ -13,7 +13,7 @@ const HomeCategoryCards: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/categories`)
+    fetch('https://jewelskart-india.onrender.com/categories')
       .then(res => res.json())
       .then(data => setCategories(data))
       .catch(err => console.error('Error fetching categories:', err));
