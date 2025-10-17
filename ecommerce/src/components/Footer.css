@@ -1,0 +1,112 @@
+.footer {
+  width: 100%;
+  background: #590330;
+  color: #f8f9fa;
+  position: relative;
+  border-top: 3px solid #d4af37;
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 40px 20px;
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, #f8c471 50%, transparent 100%);
+}
+
+.footer-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.footer-section h4 {
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  font-weight: 700;
+  color: #f8c471;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.footer-section h4::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: #f8c471;
+  border-radius: 1px;
+}
+
+.footer-section p {
+  margin: 8px 0;
+  color: #e8e9ea;
+  line-height: 1.5;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+  cursor: pointer;
+}
+
+.footer-section p:hover {
+  color: #f8c471;
+}
+
+@media (max-width: 768px) {
+  .footer {
+    flex-direction: column;
+    padding: 20px 10px;
+    background: #590330 !important;
+  }
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 30px 20px 15px;
+  }
+  .footer-section {
+    min-width: 100%;
+    margin: 10px 0;
+    text-align: center;
+  }
+  .footer-section h4 {
+    font-size: 16px;
+    color: #f8c471 !important;
+  }
+  .footer-section p {
+    color: #e8e9ea !important;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer {
+    padding: 15px 5px;
+    background: #590330 !important;
+  }
+  .footer-content {
+    padding: 25px 15px 10px;
+    gap: 15px;
+  }
+  .footer-section h4 {
+    font-size: 14px;
+    color: #f8c471 !important;
+  }
+  .footer-section p {
+    color: #e8e9ea !important;
+    font-size: 0.8rem;
+  }
+}

@@ -1,0 +1,138 @@
+/* Responsive styles for Cart and WishList tables */
+
+@media (max-width: 768px) {
+  table.table-condensed,
+  table.table-bordered,
+  table.table-hover,
+  table.table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table thead,
+  table tbody,
+  table th,
+  table td,
+  table tr {
+    display: block;
+  }
+
+  table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  table tr {
+    margin: 0 0 1rem 0;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+  }
+
+  table td {
+    padding-left: 0 !important;
+  }
+
+  table td > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  table td > div > div {
+    flex: 1 1 60%;
+  }
+
+  table td > div > img {
+    flex: 0 0 80px;
+    max-width: 80px;
+    height: auto;
+  }
+
+  table td[data-label="Quantity"] {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  table td[data-label="Remove"] {
+    display: flex;
+    justify-content: flex-start;
+    padding-top: 10px;
+  }
+
+  table td {
+    border: none;
+    position: relative;
+    padding-left: 50%;
+    white-space: normal;
+    text-align: left;
+    font-size: 14px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  table td:before {
+    position: static;
+    display: inline-block;
+    width: auto;
+    padding-right: 10px;
+    white-space: normal;
+    font-weight: 600;
+    color: #333;
+    content: attr(data-label);
+  }
+
+  table tr {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  table td {
+    padding-left: 0 !important;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+
+  table td > div {
+    flex: 1 1 60%;
+  }
+
+  table td > div > img {
+    flex: 0 0 80px;
+    max-width: 80px;
+    height: auto;
+  }
+
+  table td[data-label="Quantity"] {
+    justify-content: flex-start;
+  }
+
+  table td[data-label="Remove"] {
+    justify-content: flex-start;
+    padding-top: 10px;
+  }
+
+  /* Style buttons and icons */
+  button.btn,
+  span[title="Remove"] {
+    font-size: 18px;
+    padding: 6px 10px;
+    border-radius: 6px;
+  }
+
+  button.btn-primary {
+    width: 100%;
+    margin-top: 10px;
+  }
+}

@@ -1,0 +1,138 @@
+@import './styles/theme.css';
+
+html, body {
+  overflow-x: hidden;
+}
+
+body, html, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  scroll-behavior: smooth;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Banner Card css */
+.hover-image {
+  width: 300px;
+  height: auto;
+  transition: transform 0.4s ease, opacity 0.3s ease, box-shadow 0.4s ease;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px var(--shadow-light);
+  overflow: hidden;
+}
+
+.hover-image:hover {
+  transform: scale(1.08) translateY(-8px);
+  opacity: 0.95;
+  cursor: pointer;
+  box-shadow: 0 12px 40px var(--shadow-medium);
+}
+
+/* Footer */
+.footer-image
+{
+  width: 100%;
+  height: auto;
+  
+}
+
+/* Card Transaction */
+.zoom-card {
+  display: block;
+  text-decoration: none;
+  border-radius: 16px;
+  overflow: hidden;
+  min-width: 250px;
+  margin-bottom: 20px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px var(--shadow-light);
+  position: relative;
+}
+
+.zoom-card:hover {
+  transform: scale(1.08) translateY(-12px);
+  box-shadow: 0 20px 60px var(--shadow-medium);
+}
+
+.zoom-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(212, 175, 55, 0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.zoom-card:hover::before {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .hover-image {
+    width: 100%;
+    height: auto;
+  }
+  .zoom-card {
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .hover-image {
+    width: 100%;
+    height: auto;
+  }
+  .zoom-card {
+    min-width: 100%;
+  }
+}
+
+/* React Toastify Custom Styles */
+.Toastify__toast {
+  background: var(--neutral-white) !important;
+  color: var(--text-primary) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px var(--shadow-medium) !important;
+  border: 1px solid var(--border-light) !important;
+}
+
+.Toastify__toast--success {
+  background: linear-gradient(135deg, var(--primary-sage), #a3e635) !important;
+  color: var(--neutral-white) !important;
+}
+
+.Toastify__toast--error {
+  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+  color: var(--neutral-white) !important;
+}
+
+.Toastify__toast--info {
+  background: linear-gradient(135deg, var(--primary-teal), #0891b2) !important;
+  color: var(--neutral-white) !important;
+}
+
+.Toastify__toast--warning {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  color: var(--neutral-white) !important;
+}
+
+.Toastify__progress-bar {
+  background: rgba(255, 255, 255, 0.7) !important;
+}
+
+.Toastify__close-button {
+  color: var(--neutral-white) !important;
+  opacity: 0.8 !important;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1 !important;
+}

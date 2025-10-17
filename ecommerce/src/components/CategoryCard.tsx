@@ -1,0 +1,279 @@
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { createSlug } from "../utils/urlUtils";
+
+interface Category {
+  catagory_id: number;
+  catagory_name: string;
+  image: string;
+  type_name: string;
+  type_id: number;
+}
+
+interface CategoryCardProps {
+  typeId: number;
+  title?: string;
+  layout?: "grid" | "horizontal";
+  maxItems?: number;
+}
+
+const CategoryCard: React.FC<CategoryCardProps> = ({ 
+  typeId, 
+  title = "Categories", 
+  layout = "grid",
+  maxItems = 4 
+}) => {
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    fetch(`http://localhost:5000/categories/type/${typeId}`)
+      .then((res) => res.json())
+      .then((data) => setCategories(data))
+      .catch((err) => console.error("Error loading categories:", err));
+  }, [typeId]);
+
+  if (layout === "horizontal") {
+    return (
+      <div style={{ width: "100%", background: 'var(--bg-accent)', padding: '60px 0' }}>
+        <div className="text-center" style={{ marginBottom: '48px' }}>
+          <h2 
+            style={{ 
+              color: 'var(--primary-teal)',
+              fontFamily: 'serif',
+              fontSize: '2.5rem',
+              fontWeight: '700',
+              letterSpacing: '1px',
+              marginBottom: '16px',
+              textTransform: 'uppercase'
+            }}
+          >
+            {title}
+          </h2>
+          <div
+            style={{
+              width: '100px',
+              height: '3px',
+              background: 'var(--primary-sage)',
+              margin: '0 auto',
+              borderRadius: '2px'
+            }}
+          />
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "nowrap",
+            justifyContent: "center",
+            gap: "30px",
+            padding: "0 40px",
+            maxWidth: "1500px",
+            margin: "0 auto",
+            overflowX: "hidden",
+          }}
+        >
+          {categories
+            .slice(0, maxItems)
+            .map((cat) => (
+              <Link
+                key={cat.catagory_id}
+                to={`/products/category/${createSlug(cat.catagory_name)}`}
+                className="zoom-card"
+                style={{
+                  flex: "0 0 320px",
+                  minWidth: "320px",
+                  textDecoration: "none",
+                }}
+              >
+                <div
+                  style={{
+                    position: "relative",
+                    height: "400px",
+                    borderRadius: "16px",
+                    overflow: "hidden",
+                    background: "var(--neutral-white)",
+                    boxShadow: "0 8px 32px var(--shadow-light)",
+                    border: "1px solid var(--border-light)",
+                  }}
+                >
+                  <img
+                    src={`http://localhost:5000/images/${cat.image}`}
+                    alt={cat.catagory_name}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      display: "block",
+                      transition: "transform 0.6s ease",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      background: "linear-gradient(to top, rgba(15, 118, 110, 0.7) 0%, rgba(15, 118, 110, 0.2) 50%, rgba(132, 204, 22, 0.1) 100%)",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: "20px",
+                      left: "20px",
+                      right: "20px",
+                      height: "2px",
+                      background: "var(--primary-sage)",
+                      borderRadius: "1px",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: "32px",
+                      left: "24px",
+                      right: "24px",
+                      color: "var(--neutral-white)",
+                      zIndex: 2,
+                    }}
+                  >
+                    <div style={{ 
+                      fontSize: "1.4rem", 
+                      fontWeight: "700",
+                      fontFamily: "serif",
+                      marginBottom: "6px",
+                      textShadow: "0 2px 8px rgba(0,0,0,0.5)"
+                    }}>
+                      {cat.catagory_name}
+                    </div>
+                    <div style={{ 
+                      fontSize: "0.95rem", 
+                      fontWeight: "500",
+                      color: "var(--primary-sage)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                      textShadow: "0 1px 4px rgba(0,0,0,0.3)"
+                    }}>
+                      Discover Now
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ width: "100%", padding: "40px 0", background: 'var(--bg-secondary)' }}>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "40px",
+          width: "100%",
+          padding: "0 60px",
+          boxSizing: "border-box",
+          maxWidth: "1600px",
+          margin: "0 auto",
+          justifyContent: "center",
+        }}
+      >
+        {categories
+          .slice(0, maxItems)
+          .map((cat) => (
+            <Link
+              key={cat.catagory_id}
+              to={`/products/category/${createSlug(cat.catagory_name)}`}
+              className="zoom-card"
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                width: '320px',
+                flexShrink: 0
+              }}
+            >
+              <div
+                style={{
+                  position: "relative",
+                  height: "400px",
+                  borderRadius: "20px",
+                  overflow: "hidden",
+                  background: "var(--neutral-white)",
+                  boxShadow: "0 8px 32px var(--shadow-light)",
+                  border: "1px solid var(--border-light)",
+                }}
+              >
+                <img
+                  src={`http://localhost:5000/images/${cat.image}`}
+                  alt={cat.catagory_name}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    display: "block",
+                    transition: "transform 0.6s ease",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    background: "linear-gradient(to top, rgba(15, 118, 110, 0.8) 0%, rgba(15, 118, 110, 0.3) 10%, rgba(132, 204, 22, 0.1) 100%)",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "20px",
+                    left: "20px",
+                    right: "20px",
+                    height: "2px",
+                    background: "var(--primary-sage)",
+                    borderRadius: "1px",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "32px",
+                    left: "24px",
+                    right: "24px",
+                    color: "var(--neutral-white)",
+                    zIndex: 2,
+                  }}
+                >
+                  <div style={{ 
+                    fontSize: "1.5rem", 
+                    fontWeight: "700",
+                    fontFamily: "serif",
+                    marginBottom: "8px",
+                    textShadow: "0 2px 8px rgba(0,0,0,0.5)"
+                  }}>
+                    {cat.catagory_name}
+                  </div>
+                  <div style={{ 
+                    fontSize: "1rem", 
+                    fontWeight: "500",
+                    color: "var(--primary-sage)",
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                    textShadow: "0 1px 4px rgba(0,0,0,0.2)"
+                  }}>
+                    Explore Collection
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+      </div>
+    </div>
+  );
+};
+
+export default CategoryCard;
