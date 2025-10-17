@@ -34,7 +34,7 @@ const HeroSection: React.FC = () => {
 
   const fetchBanners = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/banners');
+      const response = await axios.get('https://jewelskart-india.onrender.com/api/banners');
       if (response.data.success) {
         const activeBanners = response.data.banners.filter((banner: Banner) => 
           banner.is_active && banner.placement === 'Main Home Page Banner'
