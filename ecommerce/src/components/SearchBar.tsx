@@ -30,7 +30,7 @@ const SearchBar: React.FC = () => {
   // Initialize speech recognition
   useEffect(() => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       const recognitionInstance = new SpeechRecognition();
       recognitionInstance.continuous = false;
       recognitionInstance.interimResults = false;

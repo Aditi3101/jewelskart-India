@@ -8,6 +8,7 @@ interface Category {
   catagory_id: number;
   catagory_name: string;
   type_name: string;
+  type_id?: number;
   image: string;
   description: string;
   banner_name: string;
@@ -16,7 +17,7 @@ interface Category {
 
 const CategoryManagement: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);

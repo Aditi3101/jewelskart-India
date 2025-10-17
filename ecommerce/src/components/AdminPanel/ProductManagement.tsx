@@ -28,6 +28,7 @@ interface Product {
 interface Type {
   type_id: number;
   type_name: string;
+  status?: string;
 }
 
 interface Category {
