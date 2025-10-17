@@ -33,7 +33,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     // Fetch types data (same as TypeNavBar)
-    fetch("http://localhost:5000/api/types")
+    fetch("https://jewelskart-backend.onrender.com/api/types")
       .then((res) => res.json())
       .then((data) => {
         console.log("Types data:", data);

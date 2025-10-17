@@ -54,7 +54,7 @@ const HeroSection: React.FC = () => {
     <section 
       className="hero-section"
       style={{
-        backgroundImage: currentBanner && isImage(currentBanner.image_url) ? `url(http://localhost:5000/uploads/banner/${currentBanner.image_url})` : !currentBanner ? 'linear-gradient(135deg, var(--primary-teal) 0%, var(--primary-accent) 100%)' : 'none',
+        backgroundImage: currentBanner && isImage(currentBanner.image_url) ? `url(https://jewelskart-backend.onrender.com/uploads/banner/${currentBanner.image_url})` : !currentBanner ? 'linear-gradient(135deg, var(--primary-teal) 0%, var(--primary-accent) 100%)' : 'none',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -81,7 +81,7 @@ const HeroSection: React.FC = () => {
             zIndex: 0
           }}
         >
-          <source src={`http://localhost:5000/uploads/banner/${currentBanner.image_url}`} type="video/mp4" />
+          <source src={`https://jewelskart-backend.onrender.com/uploads/banner/${currentBanner.image_url}`} type="video/mp4" />
         </video>
       )}
       

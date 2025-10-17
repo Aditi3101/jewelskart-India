@@ -58,7 +58,7 @@ const Banner: React.FC = () => {
             }}
           >
             {/* <img
-              src={`http://localhost:5000${banner.image_url}`}
+              src={`https://jewelskart-backend.onrender.com${banner.image_url}`}
               alt={banner.type}
               style={{
                 width: "100%",

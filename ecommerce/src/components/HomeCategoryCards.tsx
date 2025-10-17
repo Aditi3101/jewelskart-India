@@ -56,7 +56,7 @@ const HomeCategoryCards: React.FC = () => {
                 }}
               >
                 <img
-                  src={`http://localhost:5000/images/${category.image}`}
+                  src={`https://jewelskart-backend.onrender.com/images/${category.image}`}
                   alt={category.catagory_name}
                   style={{
                     width: '100%',
