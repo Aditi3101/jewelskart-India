@@ -20,14 +20,14 @@ const HomeCarousel: React.FC = () => {
   useEffect(() => {
     const fetchBanners = async () => {
       try {
-        const res = await axios.get<Banner[]>(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/banners/carousel`
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/banners`
         );
-        if (Array.isArray(res.data)) {
-          const homepageBanners = res.data; // ✅ no filtering
+        if (res.data && Array.isArray(res.data.banners)) {
+          const homepageBanners = res.data.banners.filter((banner: any) => banner.placement === 'carousel');
           setBanners(homepageBanners);
         } else {
-          console.error("Invalid data format: expected array, got", res.data);
+          console.error("Invalid data format: expected {banners: []}, got", res.data);
           setError("Invalid data format from server");
         }
       } catch (err) {
