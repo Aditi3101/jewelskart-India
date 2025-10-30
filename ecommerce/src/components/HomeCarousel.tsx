@@ -21,7 +21,7 @@ const HomeCarousel: React.FC = () => {
     const fetchBanners = async () => {
       try {
         const res = await axios.get<Banner[]>(
-          "https://jewelskart-backend.onrender.com/api/banners/carousal" // ✅ UPDATED
+          `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/banners/carousel`
         );
        const homepageBanners = res.data; // ✅ no filtering
 
@@ -73,7 +73,7 @@ const HomeCarousel: React.FC = () => {
                 >
                   <div className="carousel-image-wrapper">
                     <img
-                      src={`http://localhost:5000${banner.image_url}`}
+                      src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${banner.image_url}`}
                       className="carousel-image"
                       alt={banner.title}
                       loading={index === 0 ? "eager" : "lazy"}
