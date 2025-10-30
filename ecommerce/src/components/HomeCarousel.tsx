@@ -21,13 +21,13 @@ const HomeCarousel: React.FC = () => {
     const fetchBanners = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/banners`
+          'https://jewelskart-backend.onrender.com/api/banners/carousel'
         );
-        if (res.data && Array.isArray(res.data.banners)) {
-          const homepageBanners = res.data.banners.filter((banner: any) => banner.placement === 'carousel');
+        if (Array.isArray(res.data)) {
+          const homepageBanners = res.data; // No filtering needed as endpoint returns carousel banners
           setBanners(homepageBanners);
         } else {
-          console.error("Invalid data format: expected {banners: []}, got", res.data);
+          console.error("Invalid data format: expected array, got", res.data);
           setError("Invalid data format from server");
         }
       } catch (err) {
