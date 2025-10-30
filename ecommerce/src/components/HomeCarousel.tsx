@@ -20,16 +20,12 @@ const HomeCarousel: React.FC = () => {
   useEffect(() => {
     const fetchBanners = async () => {
       try {
-        const res = await axios.get(
-          'https://jewelskart-backend.onrender.com/api/banners/carousel'
+        const res = await axios.get<Banner[]>(
+          "https://jewelskart-backend.onrender.com/api/banners/carousal" // ✅ UPDATED
         );
-        if (Array.isArray(res.data)) {
-          const homepageBanners = res.data; // No filtering needed as endpoint returns carousel banners
-          setBanners(homepageBanners);
-        } else {
-          console.error("Invalid data format: expected array, got", res.data);
-          setError("Invalid data format from server");
-        }
+       const homepageBanners = res.data; // ✅ no filtering
+
+        setBanners(homepageBanners);
       } catch (err) {
         console.error("Failed to fetch banners:", err);
         setError("Failed to load banners");
@@ -77,7 +73,7 @@ const HomeCarousel: React.FC = () => {
                 >
                   <div className="carousel-image-wrapper">
                     <img
-                      src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${banner.image_url}`}
+                      src={`http://localhost:5000${banner.image_url}`}
                       className="carousel-image"
                       alt={banner.title}
                       loading={index === 0 ? "eager" : "lazy"}

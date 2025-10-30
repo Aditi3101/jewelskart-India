@@ -1550,29 +1550,6 @@ app.get("/api/banners/:placement", async (req, res) => {
   }
 });
 
-// API: Get carousel banners
-app.get("/api/banners/carousel", async (req, res) => {
-  try {
-    const [rows] = await db
-      .promise()
-      .query(
-        "SELECT id, title, type, image_url, link, placement FROM banners WHERE placement IN ('carousel', 'carousal') AND is_active = 1"
-      );
-
-    const banners = rows.map((banner) => ({
-      ...banner,
-      image_url: banner.image_url.startsWith("/")
-        ? banner.image_url
-        : `/uploads/banner/${banner.image_url}`,
-    }));
-
-    res.json(banners);
-  } catch (err) {
-    console.error("Error fetching carousel banners:", err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
 // ==============================
 // 📝 REVIEWS API
 // ==============================

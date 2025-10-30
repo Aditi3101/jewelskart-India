@@ -88,7 +88,7 @@ const TopNavBar: React.FC = () => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/login`,
+        "http://localhost:5000/login",
         { email: loginEmail, pass: loginPassword },
         { headers: { "x-api-key": API_KEY } }
       );
@@ -101,7 +101,7 @@ const TopNavBar: React.FC = () => {
 
         if (prevUserEmail !== loginEmail) {
           const countRes = await axios.get(
-            `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/user/${loginEmail}`,
+            `http://localhost:5000/user/${loginEmail}`,
             {
               headers: { "x-api-key": API_KEY },
             }
@@ -130,7 +130,7 @@ const TopNavBar: React.FC = () => {
       const email = localStorage.getItem("userEmail");
       if (email) {
         axios
-          .get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/user/${email}`, {
+          .get(`http://localhost:5000/user/${email}`, {
             headers: { "x-api-key": API_KEY },
           })
           .then((res) => {
@@ -419,7 +419,7 @@ const TopNavBar: React.FC = () => {
                 e.preventDefault();
                 axios
                   .post(
-                    `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/register`,
+                    "http://localhost:5000/register",
                     {
                       fname: registerName,
                       lname: registerSurname,
