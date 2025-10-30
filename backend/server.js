@@ -1556,7 +1556,7 @@ app.get("/api/banners/carousel", async (req, res) => {
     const [rows] = await db
       .promise()
       .query(
-        "SELECT id, title, type, image_url, link, placement FROM banners WHERE placement = 'carousel' AND is_active = 1"
+        "SELECT id, title, type, image_url, link, placement FROM banners WHERE placement IN ('carousel', 'carousal') AND is_active = 1"
       );
 
     const banners = rows.map((banner) => ({
