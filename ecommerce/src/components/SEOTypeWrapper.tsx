@@ -20,7 +20,7 @@ const SEOTypeWrapper: React.FC = () => {
       setTypeId(parseInt(nameOrId));
       setLoading(false);
     } else {
-      fetch(`http://localhost:5000/api/type-id/${nameOrId}`)
+      fetch(`https://jewelskart-backend.onrender.com/api/type-id/${nameOrId}`)
         .then(res => res.json())
         .then(data => {
           if (data.type_id) {

@@ -12,7 +12,7 @@ const ProductPage = () => {
   useEffect(() => {
     if (category) {
       axios
-        .get<any[]>(`http://localhost:5000/api/products/${category}`)
+        .get<any[]>(`https://jewelskart-backend.onrender.com/api/products/${category}`)
         .then((res) => setProducts(res.data))
         .catch((err) => console.error("Error fetching products:", err));
     }
@@ -53,7 +53,7 @@ const ProductPage = () => {
                 >
                   {/* Image */}
                   <img
-                    src={`http://localhost:5000/uploads/${p.fileToUpload}`}
+                    src={`https://jewelskart-backend.onrender.com/uploads/${p.fileToUpload}`}
                     alt={p.p_name}
                     style={{
                       width: "100%",

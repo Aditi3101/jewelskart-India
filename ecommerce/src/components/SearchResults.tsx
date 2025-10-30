@@ -1,77 +1,4 @@
-// import React, { useEffect, useState } from "react";
-// import { useLocation } from "react-router-dom";
-// import axios from "axios";
 
-// interface Product {
-//   p_id: number;
-//   p_name: string;
-//   p_price: number;
-//   p_code: string;
-//   catagory_name: string;
-//   collection_name: string;
-//   small_description: string;
-//   fileToUpload: string;
-//   image1: string;
-// }
-
-// const SearchResults: React.FC = () => {
-//   const location = useLocation();
-//   const queryParams = new URLSearchParams(location.search);
-//   const query = queryParams.get("query") || "";
-//   const [results, setResults] = useState<Product[]>([]);
-
-//   useEffect(() => {
-//     const fetchResults = async () => {
-//       try {
-//         const res = await axios.get<Product[]>(
-//           `http://localhost:5000/search?query=${encodeURIComponent(query)}`,
-//           {
-//             headers: {
-//               "x-api-key": "your_super_secret_api_key_123",
-//             },
-//           }
-//         );
-//         setResults(res.data);
-//       } catch (error) {
-//         console.error("Search error:", error);
-//       }
-//     };
-
-//     if (query) fetchResults();
-//   }, [query]);
-
-//   return (
-//     <div className="container mt-4">
-//       <h4>Search Results for: "{query}"</h4>
-//       {results.length > 0 ? (
-//         <div className="row">
-//           {results.map((product) => (
-//             <div className="col-md-3 mb-4" key={product.p_id}>
-//               <div className="card h-100">
-//                 <img
-//                   src={`http://localhost:5000/uploads/${product.fileToUpload || product.image1}`}
-//                   alt={product.p_name}
-//                   className="card-img-top"
-//                   style={{ height: "200px", objectFit: "cover" }}
-//                 />
-//                 <div className="card-body">
-//                   <h5 className="card-title">{product.p_name}</h5>
-//                   <p className="card-text mb-1">₹{product.p_price}</p>
-//                   <p className="text-muted mb-1">{product.catagory_name} / {product.collection_name}</p>
-//                   <p className="small">{product.small_description}</p>
-//                 </div>
-//               </div>
-//             </div>
-//           ))}
-//         </div>
-//       ) : (
-//         <p>No results found.</p>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default SearchResults;
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -88,7 +15,7 @@ const SearchResults: React.FC = () => {
 
 useEffect(() => {
   axios
-    .get(`http://localhost:5000/api/search?query=${searchTerm || ''}`)
+    .get(`https://jewelskart-backend.onrender.com/api/search?query=${searchTerm || ''}`)
     .then((res) => {
       setResults(res.data || []);
       setError(null);
@@ -130,7 +57,7 @@ useEffect(() => {
                 }}
               >
                 <img
-                  src={`http://localhost:5000/uploads/${product.fileToUpload}`}
+                  src={`https://jewelskart-backend.onrender.com/uploads/${product.fileToUpload}`}
                   alt={product.p_name}
                   style={{ width: '100%', height: '200px', objectFit: 'contain' }}
                 />

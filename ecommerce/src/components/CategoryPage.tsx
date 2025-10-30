@@ -8,7 +8,7 @@ const CategoryPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get<any[]>("http://localhost:5000/categories")
+    axios.get<any[]>("https://jewelskart-backend.onrender.com/categories")
       .then((res) => setCategories(res.data))
       .catch((err) => console.error(err));
   }, []);
@@ -28,7 +28,7 @@ const CategoryPage = () => {
           >
             <img
               className="card-img"
-              src={`http://localhost:5000/uploads/${cat.image}`}
+              src={`https://jewelskart-backend.onrender.com/uploads/${cat.image}`}
               style={{ height: "300px" }}
               alt={cat.catagory_name}
             />

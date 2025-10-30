@@ -19,7 +19,7 @@ const BagCategoryCards: React.FC<BagCategoryCardsProps> = ({ typeId, title = "Fe
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/categories/type/${typeId}`)
+    fetch(`https://jewelskart-backend.onrender.com/categories/type/${typeId}`)
       .then((res) => res.json())
       .then((data) => setCategories(data))
       .catch((err) => console.error("Error loading categories:", err));
@@ -89,7 +89,7 @@ const BagCategoryCards: React.FC<BagCategoryCardsProps> = ({ typeId, title = "Fe
                 }}
               >
                 <img
-                  src={`http://localhost:5000/images/${cat.image}`}
+                  src={`https://jewelskart-backend.onrender.com/images/${cat.image}`}
                   alt={cat.catagory_name}
                   style={{
                     width: "100%",

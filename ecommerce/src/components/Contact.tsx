@@ -20,7 +20,7 @@ const Contact: React.FC = () => {
   useEffect(() => {
     // Fetch banner from backend where placement = 'Contact'
     axios
-      .get<any[]>("http://localhost:5000/api/banners/Contact")
+      .get<any[]>("https://jewelskart-backend.onrender.com/api/banners/Contact")
       .then((res) => {
         if (res.data.length > 0) {
           setBanner({
@@ -41,7 +41,7 @@ const Contact: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/contact", form);
+      const res = await axios.post("https://jewelskart-backend.onrender.com/contact", form);
       if (res.data.success) {
         setSuccess("✅ Message sent successfully!");
         setForm({ name: "", email: "", subject: "", message: "" });
@@ -61,7 +61,7 @@ const Contact: React.FC = () => {
         <div style={{ position: "relative" }}>
           <img
             style={{ height: "40vh", width: "100%" }}
-            src={`http://localhost:5000${banner.image_path}`}
+            src={`https://jewelskart-backend.onrender.com${banner.image_path}`}
             alt="Contact Banner"
           />
           <div

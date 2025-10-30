@@ -61,7 +61,7 @@ const OrderHistory: React.FC = () => {
       try {
         if (!email) throw new Error("Not logged in");
         // fetch user to get id
-        const userRes = await axios.get(`http://localhost:5000/user/${email}`, {
+        const userRes = await axios.get(`https://jewelskart-backend.onrender.com/user/${email}`, {
           headers: { "x-api-key": API_KEY },
         });
 
@@ -69,7 +69,7 @@ const OrderHistory: React.FC = () => {
         const customerId = userRes.data.user.customer_id;
 
         const res = await axios.get(
-          `http://localhost:5000/orders?customer_id=${customerId}`,
+          `https://jewelskart-backend.onrender.com/orders?customer_id=${customerId}`,
           { headers: { "x-api-key": API_KEY } }
         );
 
@@ -79,7 +79,7 @@ const OrderHistory: React.FC = () => {
           // Auto-fetch product details for all orders to show images and names
           const orderPromises = res.data.orders.map(async (order: OrderSummary) => {
             try {
-              const detailRes = await axios.get(`http://localhost:5000/orders/${order.order_id}`, {
+              const detailRes = await axios.get(`https://jewelskart-backend.onrender.com/orders/${order.order_id}`, {
                 headers: { "x-api-key": API_KEY },
               });
               if (detailRes.data?.success) {
@@ -146,7 +146,7 @@ const OrderHistory: React.FC = () => {
     // Otherwise, fetch and cache
     setOrderDetailsLoading((prev) => ({ ...prev, [orderId]: true }));
     try {
-      const res = await axios.get(`http://localhost:5000/orders/${orderId}`, {
+      const res = await axios.get(`https://jewelskart-backend.onrender.com/orders/${orderId}`, {
         headers: { "x-api-key": API_KEY },
       });
       if (res.data?.success) {
@@ -246,7 +246,7 @@ const OrderHistory: React.FC = () => {
                         <>
                           <img
                             className="product-image"
-                            src={`http://localhost:5000/uploads/${orderDetailsById[o.order_id].items[0].fileToUpload}`}
+                            src={`https://jewelskart-backend.onrender.com/uploads/${orderDetailsById[o.order_id].items[0].fileToUpload}`}
                             alt={orderDetailsById[o.order_id].items[0].p_name}
                             style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 8 }}
                           />
@@ -275,7 +275,7 @@ const OrderHistory: React.FC = () => {
                       <div style={{ fontWeight: 600 }}>{formatINR(o.total)}</div>
                       <div className="action-buttons">
                         <a
-                          href={`http://localhost:5000${o.invoiceUrl}`}
+                          href={`https://jewelskart-backend.onrender.com${o.invoiceUrl}`}
                           target="_blank"
                           rel="noreferrer"
                           className="btn btn-sm"
@@ -357,7 +357,7 @@ const OrderHistory: React.FC = () => {
                                       <td style={{ padding: '12px' }}>
                                         <div className="product-row" style={{ display: "flex", alignItems: "center", gap: 12 }}>
                                           <img
-                                            src={`http://localhost:5000/uploads/${it.fileToUpload}`}
+                                            src={`https://jewelskart-backend.onrender.com/uploads/${it.fileToUpload}`}
                                             alt={it.p_name}
                                             style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 6, border: '1px solid var(--border-light)' }}
                                           />

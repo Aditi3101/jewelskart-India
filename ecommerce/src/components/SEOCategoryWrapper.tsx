@@ -21,7 +21,7 @@ const SEOCategoryWrapper: React.FC = () => {
       setLoading(false);
     } else {
       console.log('🔍 Looking up category:', nameOrId);
-      fetch(`http://localhost:5000/api/category-id/${nameOrId}`)
+      fetch(`https://jewelskart-backend.onrender.com/api/category-id/${nameOrId}`)
         .then(res => {
           console.log('📡 API Response status:', res.status);
           return res.json();

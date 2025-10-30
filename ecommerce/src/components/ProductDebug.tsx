@@ -6,11 +6,11 @@ const ProductDebug: React.FC = () => {
 
   useEffect(() => {
     // Get products from clutches category
-    fetch('http://localhost:5000/api/category-id/clutches')
+    fetch('https://jewelskart-backend.onrender.com/api/category-id/clutches')
       .then(res => res.json())
       .then(data => {
         if (data.catagory_id) {
-          return fetch(`http://localhost:5000/api/products/category/${data.catagory_id}`);
+          return fetch(`https://jewelskart-backend.onrender.com/api/products/category/${data.catagory_id}`);
         }
       })
       .then(res => res?.json())
@@ -26,7 +26,7 @@ const ProductDebug: React.FC = () => {
     console.log(`Testing: ${productName} → ${slug}`);
     
     try {
-      const response = await fetch(`http://localhost:5000/api/product-id/${slug}`);
+      const response = await fetch(`https://jewelskart-backend.onrender.com/api/product-id/${slug}`);
       const data = await response.json();
       console.log(`Result for ${slug}:`, data);
     } catch (err) {

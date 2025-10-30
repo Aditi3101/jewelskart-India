@@ -73,7 +73,7 @@ const TopNavBar: React.FC = () => {
 
   const fetchTotalLoggedInCount = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/logged-in-count`, {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL || 'https://jewelskart-backend.onrender.com'}/logged-in-count`, {
         headers: { "x-api-key": API_KEY },
       });
       if (res.data.success) {
@@ -88,7 +88,7 @@ const TopNavBar: React.FC = () => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "http://localhost:5000/login",
+        "https://jewelskart-backend.onrender.com/login",
         { email: loginEmail, pass: loginPassword },
         { headers: { "x-api-key": API_KEY } }
       );
@@ -101,7 +101,7 @@ const TopNavBar: React.FC = () => {
 
         if (prevUserEmail !== loginEmail) {
           const countRes = await axios.get(
-            `http://localhost:5000/user/${loginEmail}`,
+            `https://jewelskart-backend.onrender.com/user/${loginEmail}`,
             {
               headers: { "x-api-key": API_KEY },
             }
@@ -130,7 +130,7 @@ const TopNavBar: React.FC = () => {
       const email = localStorage.getItem("userEmail");
       if (email) {
         axios
-          .get(`http://localhost:5000/user/${email}`, {
+          .get(`https://jewelskart-backend.onrender.com/user/${email}`, {
             headers: { "x-api-key": API_KEY },
           })
           .then((res) => {
@@ -419,7 +419,7 @@ const TopNavBar: React.FC = () => {
                 e.preventDefault();
                 axios
                   .post(
-                    "http://localhost:5000/register",
+                    "https://jewelskart-backend.onrender.com/register",
                     {
                       fname: registerName,
                       lname: registerSurname,

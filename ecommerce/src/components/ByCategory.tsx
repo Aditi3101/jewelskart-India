@@ -25,14 +25,14 @@ const ByCategory: React.FC = () => {
 
   useEffect(() => {
     // Fetch categories
-    fetch("http://localhost:5000/categories")
+    fetch("https://jewelskart-backend.onrender.com/categories")
       .then((res) => res.json())
       .then((data) => setCategories(data))
       .catch((err) => console.error("❌ Error fetching categories:", err));
 
     // Fetch banner using placement = 'ByCategory'
     axios
-      .get<any[]>("http://localhost:5000/api/banners/ByCategory")
+      .get<any[]>("https://jewelskart-backend.onrender.com/api/banners/ByCategory")
       .then((res) => {
         if (res.data.length > 0) {
           setBanner({
@@ -52,7 +52,7 @@ const ByCategory: React.FC = () => {
       {banner ? (
         <div style={{ position: "relative" }}>
           <img
-            src={`http://localhost:5000${banner.image_path}`}
+            src={`https://jewelskart-backend.onrender.com${banner.image_path}`}
             alt="Banner"
             style={{ height: "60vh", width: "100%", display: "block" }}
           />
@@ -147,7 +147,7 @@ const ByCategory: React.FC = () => {
                 }}
               >
                 <img
-                  src={`http://localhost:5000/images/${cat.image}`}
+                  src={`https://jewelskart-backend.onrender.com${cat.image}`}
                   alt={cat.catagory_name}
                   style={{
                     width: "100%",

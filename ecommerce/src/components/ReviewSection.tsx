@@ -26,7 +26,7 @@ const ReviewSection: React.FC = () => {
 
   const fetchReviews = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/all-reviews");
+      const response = await axios.get("https://jewelskart-backend.onrender.com/api/all-reviews");
       if (response.data.success) {
         setReviews(response.data.reviews);
         setDisplayedReviews(response.data.reviews.slice(0, reviewsPerPage));

@@ -19,14 +19,14 @@ const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ categoryId: pro
   useEffect(() => {
     if (categoryId) {
       // Fetch category info
-      fetch(`http://localhost:5000/categories/${categoryId}`)
+      fetch(`https://jewelskart-backend.onrender.com/categories/${categoryId}`)
         .then((res) => res.json())
         .then((data) => setCategory(data))
         .catch((err) => console.error("Error fetching category:", err));
 
       // Fetch products
       axios
-        .get<any[]>(`http://localhost:5000/api/products/category/${categoryId}`)
+        .get<any[]>(`https://jewelskart-backend.onrender.com/api/products/category/${categoryId}`)
         .then((res) => setProducts(res.data))
         .catch((err) => console.error("Error fetching products:", err));
     }
@@ -82,7 +82,7 @@ const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ categoryId: pro
                   }}
                 >
                   <img
-                    src={`http://localhost:5000/uploads/${p.fileToUpload}`}
+                    src={`https://jewelskart-backend.onrender.com/uploads/${p.fileToUpload}`}
                     alt={p.p_name}
                     style={{
                       width: "100%",

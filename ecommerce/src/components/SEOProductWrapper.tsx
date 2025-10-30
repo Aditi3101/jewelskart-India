@@ -35,7 +35,7 @@ const SEOProductWrapper: React.FC = () => {
     // Fallback to name lookup
     {
       console.log('🔍 Looking up product:', nameOrId);
-      fetch(`http://localhost:5000/api/product-id/${nameOrId}`)
+      fetch(`https://jewelskart-backend.onrender.com/api/product-id/${nameOrId}`)
         .then(res => {
           console.log('📡 Product API Response status:', res.status);
           return res.json();

@@ -26,7 +26,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/categories/type/${typeId}`)
+    fetch(`https://jewelskart-backend.onrender.com/categories/type/${typeId}`)
       .then((res) => res.json())
       .then((data) => setCategories(data))
       .catch((err) => console.error("Error loading categories:", err));
@@ -97,7 +97,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
                   }}
                 >
                   <img
-                    src={`http://localhost:5000/images/${cat.image}`}
+                    src={`https://jewelskart-backend.onrender.com/images/${cat.image}`}
                     alt={cat.catagory_name}
                     style={{
                       width: "100%",
@@ -207,7 +207,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
                 }}
               >
                 <img
-                  src={`http://localhost:5000/images/${cat.image}`}
+                  src={`https://jewelskart-backend.onrender.com/images/${cat.image}`}
                   alt={cat.catagory_name}
                   style={{
                     width: "100%",

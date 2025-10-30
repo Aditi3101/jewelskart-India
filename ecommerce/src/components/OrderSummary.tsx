@@ -41,7 +41,7 @@ const OrderSummary: React.FC = () => {
     if (!email) return;
 
     try {
-      const res = await axios.get(`http://localhost:5000/user/${email}`, {
+      const res = await axios.get(`https://jewelskart-backend.onrender.com/user/${email}`, {
         headers: { "x-api-key": API_KEY },
       });
 
@@ -50,7 +50,7 @@ const OrderSummary: React.FC = () => {
         setUser(fetchedUser);
 
         const cartRes = await axios.get(
-          `http://localhost:5000/cart?customer_id=${fetchedUser.customer_id}`
+          `https://jewelskart-backend.onrender.com/cart?customer_id=${fetchedUser.customer_id}`
         );
 
         setCart(cartRes.data);
@@ -73,7 +73,7 @@ const OrderSummary: React.FC = () => {
     if (newQty < 1) return;
 
     try {
-      await axios.put(`http://localhost:5000/cart/${cartId}`, {
+      await axios.put(`https://jewelskart-backend.onrender.com/cart/${cartId}`, {
         quantity: newQty,
       });
       if (user) fetchUserAndCart();
@@ -84,7 +84,7 @@ const OrderSummary: React.FC = () => {
 
   const handleRemove = async (cartId: number) => {
     try {
-      await axios.delete(`http://localhost:5000/cart/${cartId}`);
+      await axios.delete(`https://jewelskart-backend.onrender.com/cart/${cartId}`);
       if (user) fetchUserAndCart();
     } catch (err) {
       console.error("Failed to remove item", err);
@@ -110,7 +110,7 @@ const OrderSummary: React.FC = () => {
 
     try {
       // Initiate payment with CCAvenue
-      const paymentRes = await axios.post('http://localhost:5000/initiate-payment', {
+      const paymentRes = await axios.post('https://jewelskart-backend.onrender.com/initiate-payment', {
         user,
         cart,
         subtotal,
@@ -199,7 +199,7 @@ const OrderSummary: React.FC = () => {
             {cart.map((item) => (
               <div key={item.cart_id} className="product-info">
                 <img
-                  src={`http://localhost:5000/uploads/${item.fileToUpload}`}
+                  src={`https://jewelskart-backend.onrender.com/uploads/${item.fileToUpload}`}
                   alt={item.p_name}
                 />
                 <div className="product-details">

@@ -27,7 +27,7 @@ const Offers: React.FC = () => {
 
   const fetchOfferProducts = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/offers", {
+      const response = await axios.get("https://jewelskart-backend.onrender.com/api/offers", {
         headers: { "x-api-key": "your_super_secret_api_key_123" }
       });
       
@@ -76,7 +76,7 @@ const Offers: React.FC = () => {
                   
                   <div className="card-img-top-wrapper" style={{ height: "250px", overflow: "hidden" }}>
                     <img
-                      src={`http://localhost:5000/uploads/${product.fileToUpload}`}
+                      src={`https://jewelskart-backend.onrender.com/uploads/${product.fileToUpload}`}
                       className="card-img-top w-100 h-100"
                       alt={product.p_name}
                       style={{ objectFit: "cover" }}

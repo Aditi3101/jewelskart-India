@@ -31,7 +31,7 @@ const WishList: React.FC = () => {
 
     try {
       // First get customer_id from email
-      const userRes = await axios.get(`http://localhost:5000/user/${email}`, {
+      const userRes = await axios.get(`https://jewelskart-backend.onrender.com/user/${email}`, {
         headers: { "x-api-key": API_KEY },
       });
 
@@ -40,7 +40,7 @@ const WishList: React.FC = () => {
 
         // Then get wishlist using customer_id
         const wishlistRes = await axios.get(
-          `http://localhost:5000/wishlist?customer_id=${customerId}`
+          `https://jewelskart-backend.onrender.com/wishlist?customer_id=${customerId}`
         );
         setWishlist(wishlistRes.data);
       }
@@ -51,7 +51,7 @@ const WishList: React.FC = () => {
 
   const removeItem = (id: number) => {
     axios
-      .delete(`http://localhost:5000/wishlist/${id}`)
+      .delete(`https://jewelskart-backend.onrender.com/wishlist/${id}`)
       .then(() => {
         fetchWishlist();
         refreshCounts(); // ✅ update wishlist count after remove
@@ -68,7 +68,7 @@ const WishList: React.FC = () => {
 
     try {
       // Get customer_id from email
-      const userRes = await axios.get(`http://localhost:5000/user/${email}`, {
+      const userRes = await axios.get(`https://jewelskart-backend.onrender.com/user/${email}`, {
         headers: { "x-api-key": API_KEY },
       });
 
@@ -76,7 +76,7 @@ const WishList: React.FC = () => {
         const customerId = userRes.data.user.customer_id;
 
         // Add item to cart
-        await axios.post("http://localhost:5000/cart", {
+        await axios.post("https://jewelskart-backend.onrender.com/cart", {
           customer_id: customerId,
           p_id: item.p_id,
           p_name: item.p_name,
@@ -125,7 +125,7 @@ const WishList: React.FC = () => {
                     <td>
                       <div className="d-flex align-items-center">
                         <img
-                          src={`http://localhost:5000/uploads/${item.fileToUpload}`}
+                          src={`https://jewelskart-backend.onrender.com/uploads/${item.fileToUpload}`}
                           alt={item.p_name}
                           width="60"
                           className="me-3"

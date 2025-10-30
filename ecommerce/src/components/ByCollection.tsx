@@ -22,14 +22,14 @@ const ByCollection: React.FC = () => {
 
   useEffect(() => {
     // Fetch collections
-    fetch("http://localhost:5000/api/collections")
+    fetch("https://jewelskart-backend.onrender.com/api/collections")
       .then((res) => res.json())
       .then((data) => setCollections(data))
       .catch((err) => console.error("❌ Error fetching collections:", err));
 
     // Fetch banner where placement = 'ByCollection'
     axios
-      .get<any[]>("http://localhost:5000/api/banners/ByCollection")
+      .get<any[]>("https://jewelskart-backend.onrender.com/api/banners/ByCollection")
       .then((res) => {
         if (res.data.length > 0) {
           setBanner({
@@ -50,7 +50,7 @@ const ByCollection: React.FC = () => {
         <div style={{ position: "relative" }}>
           <img
             style={{ height: "60vh", width: "100%", display: "block" }}
-            src={`http://localhost:5000${banner.image_path}`}
+            src={`https://jewelskart-backend.onrender.com${banner.image_path}`}
             alt="Banner"
           />
           <div
@@ -139,7 +139,7 @@ const ByCollection: React.FC = () => {
           >
             <div style={{ width: "100%", height: 260, position: "relative" }}>
               <img
-                src={`http://localhost:5000/uploads/${item.fileToUpload}`}
+                src={`https://jewelskart-backend.onrender.com/uploads/${item.fileToUpload}`}
                 alt={item.collection_name}
                 style={{
                   width: "100%",

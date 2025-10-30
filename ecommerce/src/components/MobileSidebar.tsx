@@ -46,7 +46,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
       const email = localStorage.getItem("userEmail");
       if (email) {
         axios
-          .get(`http://localhost:5000/user/${email}`, {
+          .get(`https://jewelskart-backend.onrender.com/user/${email}`, {
             headers: { "x-api-key": API_KEY },
           })
           .then((res) => {
@@ -76,7 +76,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "http://localhost:5000/login",
+        "https://jewelskart-backend.onrender.com/login",
         { email: loginEmail, pass: loginPassword },
         { headers: { "x-api-key": API_KEY } }
       );

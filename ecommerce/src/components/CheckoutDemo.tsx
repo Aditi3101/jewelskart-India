@@ -26,7 +26,7 @@ const CheckoutDemo: React.FC = () => {
       const orderId = `ORDER_${Date.now()}`;
       
       // Call backend to create payment
-      const response = await axios.post('http://localhost:5000/api/create-payment', {
+      const response = await axios.post('https://jewelskart-backend.onrender.com/api/create-payment', {
         orderId,
         amount: parseFloat(formData.amount),
         customerName: formData.customerName,

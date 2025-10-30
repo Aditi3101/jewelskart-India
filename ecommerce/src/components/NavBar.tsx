@@ -21,7 +21,7 @@ const NavBar: React.FC = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/navbar-grouped", {
+      .get("https://jewelskart-backend.onrender.com/api/navbar-grouped", {
         headers: {
           "x-api-key": "your_super_secret_api_key_123",
         },

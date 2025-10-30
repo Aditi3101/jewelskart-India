@@ -8,13 +8,13 @@ const SEOTest: React.FC = () => {
 
   useEffect(() => {
     // Fetch types
-    fetch('http://localhost:5000/api/types')
+    fetch('https://jewelskart-backend.onrender.com/api/types')
       .then(res => res.json())
       .then(data => setTypes(data))
       .catch(err => console.error('Error fetching types:', err));
 
     // Fetch categories
-    fetch('http://localhost:5000/categories')
+    fetch('https://jewelskart-backend.onrender.com/categories')
       .then(res => res.json())
       .then(data => setCategories(data.slice(0, 5))) // Just first 5
       .catch(err => console.error('Error fetching categories:', err));
@@ -58,7 +58,7 @@ const SEOTest: React.FC = () => {
         {types.map(type => (
           <li key={`api-${type.type_id}`}>
             <a 
-              href={`http://localhost:5000/api/type-id/${createSlug(type.type_name)}`}
+              href={`https://jewelskart-backend.onrender.com/api/type-id/${createSlug(type.type_name)}`}
               target="_blank"
               rel="noopener noreferrer"
             >

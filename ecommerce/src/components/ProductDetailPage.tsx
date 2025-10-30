@@ -41,7 +41,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId: propPr
   useEffect(() => {
     if (id) {
       axios
-        .get(`http://localhost:5000/api/product/${id}`)
+        .get(`https://jewelskart-backend.onrender.com/api/product/${id}`)
         .then((res) => {
           if (res.data) {
             setProduct(res.data);
@@ -64,7 +64,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId: propPr
 
   const fetchReviews = async (productId: string) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/reviews/${productId}`);
+      const response = await axios.get(`https://jewelskart-backend.onrender.com/api/reviews/${productId}`);
       if (response.data.success) {
         setReviews(response.data.reviews);
       }
@@ -83,7 +83,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId: propPr
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/reviews', {
+      const response = await axios.post('https://jewelskart-backend.onrender.com/api/reviews', {
         p_id: id,
         user_email: email,
         user_rating: newReview.rating,
@@ -124,12 +124,12 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId: propPr
     if (!email) return toast.warn("Please log in to add to cart");
 
     try {
-      const { data } = await axios.get(`http://localhost:5000/user/${email}`, {
+      const { data } = await axios.get(`https://jewelskart-backend.onrender.com/user/${email}`, {
         headers: { "x-api-key": API_KEY },
       });
 
       if (data.success) {
-        await axios.post("http://localhost:5000/cart", {
+        await axios.post("https://jewelskart-backend.onrender.com/cart", {
           customer_id: data.user.customer_id,
           p_name: product.p_name,
           p_price: product.p_price,
@@ -153,12 +153,12 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId: propPr
     if (!email) return toast.warn("Please log in to add to wishlist");
 
     try {
-      const { data } = await axios.get(`http://localhost:5000/user/${email}`, {
+      const { data } = await axios.get(`https://jewelskart-backend.onrender.com/user/${email}`, {
         headers: { "x-api-key": API_KEY },
       });
 
       if (data.success) {
-        await axios.post("http://localhost:5000/wishlist", {
+        await axios.post("https://jewelskart-backend.onrender.com/wishlist", {
           customer_id: data.user.customer_id,
           p_name: product.p_name,
           p_price: product.p_price,
@@ -259,12 +259,12 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId: propPr
                           borderRadius: "12px"
                         }}
                       >
-                        <source src={`http://localhost:5000/uploads/${media.replace(/^.*[\\\\\\/]/, '')}`} type="video/mp4" />
+                        <source src={`https://jewelskart-backend.onrender.com/uploads/${media.replace(/^.*[\\\\\\/]/, '')}`} type="video/mp4" />
                         Your browser does not support the video tag.
                       </video>
                     ) : (
                       <img
-                        src={`http://localhost:5000/uploads/${media.replace(/^.*[\\\\\\/]/, '')}`}
+                        src={`https://jewelskart-backend.onrender.com/uploads/${media.replace(/^.*[\\\\\\/]/, '')}`}
                         alt={`Product media ${index + 1}`}
                         style={{
                           width: "100%",
@@ -426,7 +426,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId: propPr
                           }}
                           muted
                         >
-                          <source src={`http://localhost:5000/uploads/${media.replace(/^.*[\\\\\\/]/, '')}`} type="video/mp4" />
+                          <source src={`https://jewelskart-backend.onrender.com/uploads/${media.replace(/^.*[\\\\\\/]/, '')}`} type="video/mp4" />
                         </video>
                         <div
                           style={{
@@ -450,7 +450,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId: propPr
                       </>
                     ) : (
                       <img
-                        src={`http://localhost:5000/uploads/${media.replace(/^.*[\\\\\\/]/, '')}`}
+                        src={`https://jewelskart-backend.onrender.com/uploads/${media.replace(/^.*[\\\\\\/]/, '')}`}
                         alt={`Thumbnail ${index + 1}`}
                         style={{
                           width: "100%",
@@ -659,7 +659,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId: propPr
         >
           {allMedia[currentImageIndex] && !isVideo(allMedia[currentImageIndex]) && (
             <img
-              src={`http://localhost:5000/uploads/${allMedia[currentImageIndex]?.replace(/^.*[\\\\\\/]/, '')}`}
+              src={`https://jewelskart-backend.onrender.com/uploads/${allMedia[currentImageIndex]?.replace(/^.*[\\\\\\/]/, '')}`}
               alt="modal preview"
               style={{
                 maxWidth: "95%",

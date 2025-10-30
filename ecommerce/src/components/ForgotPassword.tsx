@@ -16,7 +16,7 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({ show, onClose }) => {
     setLoading(true);
     
     try {
-      const response = await axios.post('http://localhost:5000/forgot-password', { email });
+      const response = await axios.post('https://jewelskart-backend.onrender.com/forgot-password', { email });
       setMessage(response.data.message);
     } catch (error) {
       setMessage('Failed to send reset email');

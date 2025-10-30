@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -23,7 +21,7 @@ const HomeCarousel: React.FC = () => {
         const res = await axios.get<Banner[]>(
           "https://jewelskart-backend.onrender.com/api/banners/carousal" // ✅ UPDATED
         );
-       const homepageBanners = res.data; // ✅ no filtering
+        const homepageBanners = res.data; // ✅ no filtering
 
         setBanners(homepageBanners);
       } catch (err) {
@@ -39,7 +37,8 @@ const HomeCarousel: React.FC = () => {
 
   if (loading) return <p className="text-center">Loading carousel...</p>;
   if (error) return <p className="text-center text-danger">{error}</p>;
-  if (banners.length === 0) return <p className="text-center">No banners available.</p>;
+  if (banners.length === 0)
+    return <p className="text-center">No banners available.</p>;
 
   return (
     <section className="home-carousel-section">
@@ -50,7 +49,12 @@ const HomeCarousel: React.FC = () => {
         </div>
 
         <div className="carousel-container">
-          <div id="homeCarousel" className="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+          <div
+            id="homeCarousel"
+            className="carousel slide"
+            data-bs-ride="carousel"
+            data-bs-interval="4000"
+          >
             <div className="carousel-indicators d-none d-md-flex">
               {banners.map((_, index) => (
                 <button
@@ -73,7 +77,7 @@ const HomeCarousel: React.FC = () => {
                 >
                   <div className="carousel-image-wrapper">
                     <img
-                      src={`http://localhost:5000${banner.image_url}`}
+                      src={`https://jewelskart-backend.onrender.com${banner.image_url}`}
                       className="carousel-image"
                       alt={banner.title}
                       loading={index === 0 ? "eager" : "lazy"}
@@ -95,7 +99,10 @@ const HomeCarousel: React.FC = () => {
               data-bs-target="#homeCarousel"
               data-bs-slide="prev"
             >
-              <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span
+                className="carousel-control-prev-icon"
+                aria-hidden="true"
+              ></span>
               <span className="visually-hidden">Previous</span>
             </button>
 
@@ -105,7 +112,10 @@ const HomeCarousel: React.FC = () => {
               data-bs-target="#homeCarousel"
               data-bs-slide="next"
             >
-              <span className="carousel-control-next-icon" aria-hidden="true"></span>
+              <span
+                className="carousel-control-next-icon"
+                aria-hidden="true"
+              ></span>
               <span className="visually-hidden">Next</span>
             </button>
           </div>

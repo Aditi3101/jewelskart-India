@@ -5,7 +5,7 @@ const CategoryDebug: React.FC = () => {
   const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/categories')
+    fetch('https://jewelskart-backend.onrender.com/categories')
       .then(res => res.json())
       .then(data => {
         console.log('All categories:', data);
@@ -19,7 +19,7 @@ const CategoryDebug: React.FC = () => {
     console.log(`Testing: ${categoryName} → ${slug}`);
     
     try {
-      const response = await fetch(`http://localhost:5000/api/category-id/${slug}`);
+      const response = await fetch(`https://jewelskart-backend.onrender.com/api/category-id/${slug}`);
       const data = await response.json();
       console.log(`Result for ${slug}:`, data);
     } catch (err) {

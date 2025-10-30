@@ -13,7 +13,7 @@ const ProductsByType = () => {
   useEffect(() => {
     if (typeId) {
       axios
-        .get<any[]>(`http://localhost:5000/api/products/type/${typeId}`)
+        .get<any[]>(`https://jewelskart-backend.onrender.com/api/products/type/${typeId}`)
         .then((res) => {
           setProducts(res.data);
           if (res.data.length > 0) {
@@ -58,7 +58,7 @@ const ProductsByType = () => {
                   }}
                 >
                   <img
-                    src={`http://localhost:5000/uploads/${p.fileToUpload}`}
+                    src={`https://jewelskart-backend.onrender.com/uploads/${p.fileToUpload}`}
                     alt={p.p_name}
                     style={{
                       width: "100%",

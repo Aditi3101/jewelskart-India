@@ -24,14 +24,14 @@ const Bags: React.FC = () => {
 
   useEffect(() => {
     // Fetch categories
-    fetch("http://localhost:5000/categories")
+    fetch("https://jewelskart-backend.onrender.com/categories")
       .then((res) => res.json())
       .then((data) => setCategories(data))
       .catch((err) => console.error("❌ Error fetching categories:", err));
 
     // Fetch banner using placement = 'Bag-Banner'
     axios
-      .get<any[]>("http://localhost:5000/api/banners/Bag-Banner")
+      .get<any[]>("https://jewelskart-backend.onrender.com/api/banners/Bag-Banner")
       .then((res) => {
         if (res.data.length > 0) {
           setBanner({
@@ -53,7 +53,7 @@ const Bags: React.FC = () => {
         <div style={{ position: "relative" }}>
           <img
             style={{ height: "60vh", width: "100%", display: "block" }}
-            src={`http://localhost:5000${banner.image_path}`}
+            src={`https://jewelskart-backend.onrender.com${banner.image_path}`}
             alt="Banner"
           />
           <div
@@ -154,7 +154,7 @@ const Bags: React.FC = () => {
                   }}
                 >
                   <img
-                    src={`http://localhost:5000/images/${cat.image}`}
+                    src={`https://jewelskart-backend.onrender.com/images/${cat.image}`}
                     alt={cat.catagory_name}
                     style={{
                       width: "100%",
