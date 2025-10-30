@@ -32,7 +32,7 @@ const TypeManagement: React.FC = () => {
     try {
       const token = localStorage.getItem("adminToken");
       const response = await axios.get(
-        `http://localhost:5000/admin/types?search=${searchTerm}`,
+        `https://jewelskart-backend.onrender.com/admin/types?search=${searchTerm}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -58,11 +58,11 @@ const TypeManagement: React.FC = () => {
       const token = localStorage.getItem("adminToken");
 
       if (editingType) {
-        await axios.put(`http://localhost:5000/admin/types/${editingType.type_id}`, formData, {
+        await axios.put(`https://jewelskart-backend.onrender.com/admin/types/${editingType.type_id}`, formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
       } else {
-        await axios.post("http://localhost:5000/admin/types", formData, {
+        await axios.post("https://jewelskart-backend.onrender.com/admin/types", formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
       }
@@ -87,7 +87,7 @@ const TypeManagement: React.FC = () => {
     if (window.confirm("Are you sure you want to delete this type?")) {
       try {
         const token = localStorage.getItem("adminToken");
-        await axios.delete(`http://localhost:5000/admin/types/${typeId}`, {
+        await axios.delete(`https://jewelskart-backend.onrender.com/admin/types/${typeId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         fetchTypes();
@@ -123,7 +123,7 @@ const TypeManagement: React.FC = () => {
       
       await Promise.all(
         Array.from(selectedTypes).map(typeId =>
-          axios.put(`http://localhost:5000/admin/types/${typeId}/status`, 
+          axios.put(`https://jewelskart-backend.onrender.com/admin/types/${typeId}/status`, 
             { status }, 
             { headers: { Authorization: `Bearer ${token}` } }
           )

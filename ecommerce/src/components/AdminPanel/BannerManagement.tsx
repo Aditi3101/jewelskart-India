@@ -50,7 +50,7 @@ const BannerManagement: React.FC<BannerManagementProps> = ({ onNavigate }) => {
   const fetchBanners = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get('http://localhost:5000/admin/banners', {
+      const response = await axios.get('https://jewelskart-backend.onrender.com/admin/banners', {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -106,14 +106,14 @@ const BannerManagement: React.FC<BannerManagementProps> = ({ onNavigate }) => {
       }
 
       if (editingBanner) {
-        await axios.put(`http://localhost:5000/admin/banners/${editingBanner.id}`, formDataToSend, {
+        await axios.put(`https://jewelskart-backend.onrender.com/admin/banners/${editingBanner.id}`, formDataToSend, {
           headers: { 
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data'
           }
         });
       } else {
-        await axios.post('http://localhost:5000/admin/banners', formDataToSend, {
+        await axios.post('https://jewelskart-backend.onrender.com/admin/banners', formDataToSend, {
           headers: { 
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data'
@@ -144,7 +144,7 @@ const BannerManagement: React.FC<BannerManagementProps> = ({ onNavigate }) => {
       type: banner.type,
       is_active: banner.is_active
     });
-    setPreviewImage(banner.image_url ? `http://localhost:5000/uploads/banner/${banner.image_url}` : '');
+    setPreviewImage(banner.image_url ? `https://jewelskart-backend.onrender.com/uploads/banner/${banner.image_url}` : '');
     setImageFile(null);
     setShowForm(true);
   };
@@ -153,7 +153,7 @@ const BannerManagement: React.FC<BannerManagementProps> = ({ onNavigate }) => {
     if (window.confirm('Are you sure you want to delete this banner?')) {
       try {
         const token = localStorage.getItem('adminToken');
-        await axios.delete(`http://localhost:5000/admin/banners/${bannerId}`, {
+        await axios.delete(`https://jewelskart-backend.onrender.com/admin/banners/${bannerId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchBanners();
@@ -259,7 +259,7 @@ const BannerManagement: React.FC<BannerManagementProps> = ({ onNavigate }) => {
                 <label>Preview:</label>
                 <div className="admin-preview-container">
                   <img 
-                    src={previewImage || `http://localhost:5000/uploads/banner/${editingBanner?.image_url}`} 
+                    src={previewImage || `https://jewelskart-backend.onrender.com/uploads/banner/${editingBanner?.image_url}`} 
                     alt="Banner preview" 
                     className="admin-preview-image"
                   />
@@ -309,7 +309,7 @@ const BannerManagement: React.FC<BannerManagementProps> = ({ onNavigate }) => {
             <div className="admin-banner-image">
               {banner.image_url ? (
                 <img 
-                  src={`http://localhost:5000/uploads/banner/${banner.image_url}`} 
+                  src={`https://jewelskart-backend.onrender.com/uploads/banner/${banner.image_url}`} 
                   alt={banner.title}
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = '/vite.svg';

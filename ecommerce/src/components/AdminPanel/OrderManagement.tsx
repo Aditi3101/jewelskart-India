@@ -34,7 +34,7 @@ interface OrderItem {
   total_price: number;
 }
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'https://jewelskart-backend.onrender.com';
 
 interface OrderManagementProps {
   onNavigate?: (view: string) => void;
@@ -93,7 +93,7 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ onNavigate }) => {
 
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.put(`http://localhost:5000/admin/orders/${selectedOrder.order_id}/status`, updateForm, {
+      await axios.put(`https://jewelskart-backend.onrender.com/admin/orders/${selectedOrder.order_id}/status`, updateForm, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

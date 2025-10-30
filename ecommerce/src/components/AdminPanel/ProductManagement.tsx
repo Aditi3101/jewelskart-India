@@ -83,7 +83,7 @@ const ProductManagement: React.FC = () => {
   const fetchTypes = async () => {
     try {
       const token = localStorage.getItem("adminToken");
-      const response = await axios.get("http://localhost:5000/admin/types", {
+      const response = await axios.get("https://jewelskart-backend.onrender.com/admin/types", {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data.success) {
@@ -97,7 +97,7 @@ const ProductManagement: React.FC = () => {
   const fetchCategories = async () => {
     try {
       const token = localStorage.getItem("adminToken");
-      const response = await axios.get("http://localhost:5000/admin/categories", {
+      const response = await axios.get("https://jewelskart-backend.onrender.com/admin/categories", {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data.success) {
@@ -112,7 +112,7 @@ const ProductManagement: React.FC = () => {
     try {
       const token = localStorage.getItem("adminToken");
       const response = await axios.get(
-        `http://localhost:5000/admin/products?page=${currentPage}&search=${searchTerm}`,
+        `https://jewelskart-backend.onrender.com/admin/products?page=${currentPage}&search=${searchTerm}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.data.success) {
@@ -211,11 +211,11 @@ const ProductManagement: React.FC = () => {
       if (files.image3) formDataToSend.append("image3", files.image3);
 
       if (editingProduct) {
-        await axios.put(`http://localhost:5000/admin/products/${editingProduct.p_id}`, formDataToSend, {
+        await axios.put(`https://jewelskart-backend.onrender.com/admin/products/${editingProduct.p_id}`, formDataToSend, {
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" }
         });
       } else {
-        await axios.post("http://localhost:5000/admin/products", formDataToSend, {
+        await axios.post("https://jewelskart-backend.onrender.com/admin/products", formDataToSend, {
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" }
         });
       }
@@ -251,10 +251,10 @@ const ProductManagement: React.FC = () => {
     
     // Set existing image previews
     setImagePreviews({
-      fileToUpload: product.fileToUpload ? `http://localhost:5000/uploads/${product.fileToUpload.replace(/^.*[\\\\\\/]/, '')}` : "",
-      image1: product.image1 ? `http://localhost:5000/uploads/${product.image1.replace(/^.*[\\\\\\/]/, '')}` : "",
-      image2: product.image2 ? `http://localhost:5000/uploads/${product.image2.replace(/^.*[\\\\\\/]/, '')}` : "",
-      image3: product.image3 ? `http://localhost:5000/uploads/${product.image3.replace(/^.*[\\\\\\/]/, '')}` : "",
+      fileToUpload: product.fileToUpload ? `https://jewelskart-backend.onrender.com/uploads/${product.fileToUpload.replace(/^.*[\\\\\\/]/, '')}` : "",
+      image1: product.image1 ? `https://jewelskart-backend.onrender.com/uploads/${product.image1.replace(/^.*[\\\\\\/]/, '')}` : "",
+      image2: product.image2 ? `https://jewelskart-backend.onrender.com/uploads/${product.image2.replace(/^.*[\\\\\\/]/, '')}` : "",
+      image3: product.image3 ? `https://jewelskart-backend.onrender.com/uploads/${product.image3.replace(/^.*[\\\\\\/]/, '')}` : "",
     });
     
     setShowForm(true);
@@ -264,7 +264,7 @@ const ProductManagement: React.FC = () => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
         const token = localStorage.getItem("adminToken");
-        await axios.delete(`http://localhost:5000/admin/products/${productId}`, {
+        await axios.delete(`https://jewelskart-backend.onrender.com/admin/products/${productId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchProducts();
@@ -644,7 +644,7 @@ const ProductManagement: React.FC = () => {
                   <div className="admin-product-image">
                     {product.fileToUpload ? (
                       <img
-                        src={`http://localhost:5000/uploads/${product.fileToUpload.replace(/^.*[\\\\\\/]/, '')}`}
+                        src={`https://jewelskart-backend.onrender.com/uploads/${product.fileToUpload.replace(/^.*[\\\\\\/]/, '')}`}
                         alt={product.p_name}
                         style={{ display: 'block' }}
                       />

@@ -44,7 +44,7 @@ const CategoryManagement: React.FC = () => {
     try {
       const token = localStorage.getItem("adminToken");
       const response = await axios.get(
-        "http://localhost:5000/admin/types",
+        "https://jewelskart-backend.onrender.com/admin/types",
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.data.success) {
@@ -64,7 +64,7 @@ const CategoryManagement: React.FC = () => {
       }
       
       const response = await axios.get(
-        `http://localhost:5000/admin/categories?search=${searchTerm}`,
+        `https://jewelskart-backend.onrender.com/admin/categories?search=${searchTerm}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -116,11 +116,11 @@ const CategoryManagement: React.FC = () => {
       console.log("Form data:", Object.fromEntries(formDataToSend));
 
       if (editingCategory) {
-        await axios.put(`http://localhost:5000/admin/categories/${editingCategory.catagory_id}`, formDataToSend, {
+        await axios.put(`https://jewelskart-backend.onrender.com/admin/categories/${editingCategory.catagory_id}`, formDataToSend, {
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
         });
       } else {
-        await axios.post("http://localhost:5000/admin/categories", formDataToSend, {
+        await axios.post("https://jewelskart-backend.onrender.com/admin/categories", formDataToSend, {
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
         });
       }
@@ -154,7 +154,7 @@ const CategoryManagement: React.FC = () => {
     if (window.confirm("Are you sure you want to delete this category?")) {
       try {
         const token = localStorage.getItem("adminToken");
-        await axios.delete(`http://localhost:5000/admin/categories/${categoryId}`, {
+        await axios.delete(`https://jewelskart-backend.onrender.com/admin/categories/${categoryId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         fetchCategories();
@@ -190,7 +190,7 @@ const CategoryManagement: React.FC = () => {
       
       await Promise.all(
         Array.from(selectedCategories).map(categoryId =>
-          axios.put(`http://localhost:5000/admin/categories/${categoryId}/status`, 
+          axios.put(`https://jewelskart-backend.onrender.com/admin/categories/${categoryId}/status`, 
             { status }, 
             { headers: { Authorization: `Bearer ${token}` } }
           )
@@ -210,7 +210,7 @@ const CategoryManagement: React.FC = () => {
       const token = localStorage.getItem("adminToken");
       await Promise.all(
         Array.from(selectedCategories).map(categoryId =>
-          axios.delete(`http://localhost:5000/admin/categories/${categoryId}`, 
+          axios.delete(`https://jewelskart-backend.onrender.com/admin/categories/${categoryId}`, 
             { headers: { Authorization: `Bearer ${token}` } }
           )
         )
@@ -424,7 +424,7 @@ const CategoryManagement: React.FC = () => {
                   <div className="admin-product-image">
                     {category.image ? (
                       <img
-                        src={`http://localhost:5000/uploads/${category.image}`}
+                        src={`https://jewelskart-backend.onrender.com/uploads/${category.image}`}
                         alt={category.catagory_name}
                         style={{ display: 'block' }}
                       />

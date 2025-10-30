@@ -7,7 +7,7 @@ const ProductTest: React.FC = () => {
   const testConnection = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.post('http://localhost:5000/admin/test', {}, {
+      const response = await axios.post('https://jewelskart-backend.onrender.com/admin/test', {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setResult(`Connection test: ${JSON.stringify(response.data)}`);
@@ -28,7 +28,7 @@ const ProductTest: React.FC = () => {
       formData.append('type_name', 'Test Type');
       formData.append('status', 'y');
       
-      const response = await axios.post('http://localhost:5000/admin/products', formData, {
+      const response = await axios.post('https://jewelskart-backend.onrender.com/admin/products', formData, {
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'

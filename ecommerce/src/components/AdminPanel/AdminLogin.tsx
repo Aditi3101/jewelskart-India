@@ -22,7 +22,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:5000/admin/login', {
+      const response = await axios.post('https://jewelskart-backend.onrender.com/admin/login', {
         email,
         password
       });

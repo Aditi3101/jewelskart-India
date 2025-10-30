@@ -115,7 +115,7 @@ const ProductManagementNew: React.FC = () => {
 
   const fetchTypes = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/admin/types", {
+      const response = await axios.get("https://jewelskart-backend.onrender.com/admin/types", {
         headers: getAuthHeaders()
       });
       if (response.data.success) {
@@ -129,7 +129,7 @@ const ProductManagementNew: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/admin/categories", {
+      const response = await axios.get("https://jewelskart-backend.onrender.com/admin/categories", {
         headers: getAuthHeaders()
       });
       if (response.data.success) {
@@ -145,7 +145,7 @@ const ProductManagementNew: React.FC = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://localhost:5000/admin/products?page=${currentPage}&search=${searchTerm}`,
+        `https://jewelskart-backend.onrender.com/admin/products?page=${currentPage}&search=${searchTerm}`,
         { headers: getAuthHeaders() }
       );
       if (response.data.success) {
@@ -278,8 +278,8 @@ const ProductManagementNew: React.FC = () => {
       });
 
       const url = editingProduct 
-        ? `http://localhost:5000/admin/products/${editingProduct.p_id}`
-        : "http://localhost:5000/admin/products";
+        ? `https://jewelskart-backend.onrender.com/admin/products/${editingProduct.p_id}`
+        : "https://jewelskart-backend.onrender.com/admin/products";
       
       const method = editingProduct ? 'put' : 'post';
       
@@ -326,10 +326,10 @@ const ProductManagementNew: React.FC = () => {
     
     // Set existing image previews
     setImagePreviews({
-      fileToUpload: product.fileToUpload ? `http://localhost:5000/uploads/${product.fileToUpload.replace(/^.*[\\\\\\/]/, '')}` : "",
-      image1: product.image1 ? `http://localhost:5000/uploads/${product.image1.replace(/^.*[\\\\\\/]/, '')}` : "",
-      image2: product.image2 ? `http://localhost:5000/uploads/${product.image2.replace(/^.*[\\\\\\/]/, '')}` : "",
-      image3: product.image3 ? `http://localhost:5000/uploads/${product.image3.replace(/^.*[\\\\\\/]/, '')}` : "",
+      fileToUpload: product.fileToUpload ? `https://jewelskart-backend.onrender.com/uploads/${product.fileToUpload.replace(/^.*[\\\\\\/]/, '')}` : "",
+      image1: product.image1 ? `https://jewelskart-backend.onrender.com/uploads/${product.image1.replace(/^.*[\\\\\\/]/, '')}` : "",
+      image2: product.image2 ? `https://jewelskart-backend.onrender.com/uploads/${product.image2.replace(/^.*[\\\\\\/]/, '')}` : "",
+      image3: product.image3 ? `https://jewelskart-backend.onrender.com/uploads/${product.image3.replace(/^.*[\\\\\\/]/, '')}` : "",
     });
     
     setShowForm(true);
@@ -339,7 +339,7 @@ const ProductManagementNew: React.FC = () => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
         setLoading(true);
-        await axios.delete(`http://localhost:5000/admin/products/${productId}`, {
+        await axios.delete(`https://jewelskart-backend.onrender.com/admin/products/${productId}`, {
           headers: getAuthHeaders()
         });
         alert("Product deleted successfully!");
@@ -679,7 +679,7 @@ const ProductManagementNew: React.FC = () => {
                     <div className="admin-product-image">
                       {product.fileToUpload ? (
                         <img
-                          src={`http://localhost:5000/uploads/${product.fileToUpload.replace(/^.*[\\\\\\/]/, '')}`}
+                          src={`https://jewelskart-backend.onrender.com/uploads/${product.fileToUpload.replace(/^.*[\\\\\\/]/, '')}`}
                           alt={product.p_name}
                           style={{ display: 'block' }}
                         />

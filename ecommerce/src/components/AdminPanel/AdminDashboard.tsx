@@ -46,7 +46,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get('http://localhost:5000/admin/dashboard/stats', {
+      const response = await axios.get('https://jewelskart-backend.onrender.com/admin/dashboard/stats', {
         headers: { Authorization: `Bearer ${token}` }
       });
 

@@ -9,7 +9,7 @@ const ExportData: React.FC = () => {
     const token = localStorage.getItem('adminToken');
 
     try {
-      const response = await fetch(`http://localhost:5000/admin/export/${type}`, {
+      const response = await fetch(`https://jewelskart-backend.onrender.com/admin/export/${type}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },

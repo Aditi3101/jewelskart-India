@@ -43,7 +43,7 @@
 //         ...(searchTerm && { search: searchTerm })
 //       });
 
-//       const response = await axios.get(`http://localhost:5000/admin/users?${params}`, {
+//       const response = await axios.get(`https://jewelskart-backend.onrender.com/admin/users?${params}`, {
 //         headers: { Authorization: `Bearer ${token}` }
 //       });
 
@@ -63,7 +63,7 @@
 
 //     try {
 //       const token = localStorage.getItem('adminToken');
-//       await axios.put(`http://localhost:5000/admin/users/${selectedUser.customer_id}/status`, {
+//       await axios.put(`https://jewelskart-backend.onrender.com/admin/users/${selectedUser.customer_id}/status`, {
 //         status: statusUpdate
 //       }, {
 //         headers: { Authorization: `Bearer ${token}` }
@@ -344,7 +344,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onNavigate }) => {
         ...(searchTerm && { search: searchTerm })
       });
 
-      const response = await axios.get(`http://localhost:5000/admin/users?${params}`, {
+      const response = await axios.get(`https://jewelskart-backend.onrender.com/admin/users?${params}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -364,7 +364,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onNavigate }) => {
 
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.put(`http://localhost:5000/admin/users/${selectedUser.customer_id}/status`, {
+      await axios.put(`https://jewelskart-backend.onrender.com/admin/users/${selectedUser.customer_id}/status`, {
         status: statusUpdate
       }, {
         headers: { Authorization: `Bearer ${token}` }
