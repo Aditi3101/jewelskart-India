@@ -23,9 +23,13 @@ const HomeCarousel: React.FC = () => {
         const res = await axios.get<Banner[]>(
           `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/banners/carousel`
         );
-       const homepageBanners = res.data; // ✅ no filtering
-
-        setBanners(homepageBanners);
+        if (Array.isArray(res.data)) {
+          const homepageBanners = res.data; // ✅ no filtering
+          setBanners(homepageBanners);
+        } else {
+          console.error("Invalid data format: expected array, got", res.data);
+          setError("Invalid data format from server");
+        }
       } catch (err) {
         console.error("Failed to fetch banners:", err);
         setError("Failed to load banners");
