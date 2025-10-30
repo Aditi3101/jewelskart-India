@@ -31,6 +31,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId: propPr
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [activeImage, setActiveImage] = useState<string | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [newReview, setNewReview] = useState({ rating: 5, review: '' });
@@ -177,71 +178,291 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId: propPr
   if (error) return <p className="text-center mt-5 text-danger">{error}</p>;
   if (!product) return null;
 
-  const allImages = [product.fileToUpload, product.image1, product.image2, product.image3]
-    .filter(Boolean)
-    .filter((img, index, arr) => arr.indexOf(img) === index);
-  const thumbnails = allImages.slice(0, 4);
+  const allMedia = [product.fileToUpload, product.image1, product.image2, product.image3]
+    .filter(media => {
+      return media && 
+             typeof media === 'string' && 
+             media.trim() !== '' && 
+             media !== 'null' && 
+             media !== 'undefined' &&
+             media !== 'NULL' &&
+             !media.includes('undefined') &&
+             !media.includes('null');
+    })
+    .filter((media, index, arr) => arr.indexOf(media) === index);
+
+  const isVideo = (filename: string) => {
+    const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi'];
+    return videoExtensions.some(ext => filename.toLowerCase().endsWith(ext));
+  };
 
   return (
     <div>
       <TopNavBar />
       <ResponsiveNavBarWrapper />
       <ToastContainer position="top-right" autoClose={3000} />
-      <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "40px 20px" }}>
-        <nav style={{ fontSize: "14px", color: "#666", marginBottom: "30px", fontWeight: "500" }}>
+      <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "20px 10px" }}>
+        <nav style={{ fontSize: "14px", color: "#666", marginBottom: "20px", fontWeight: "500" }}>
           Home / Products / {product.catagory_name} / {product.p_name}
         </nav>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "60px", alignItems: "start" }}>
+        <div className="product-grid" style={{ 
+          display: "grid", 
+          gridTemplateColumns: "1fr 1fr", 
+          gap: "60px", 
+          alignItems: "start" 
+        }}>
           <div>
+            {/* Carousel Container */}
             <div
+              className="carousel-container"
               style={{
-                background: "#f8f9fa",
+                background: "#3c081dff",
                 borderRadius: "16px",
-                padding: "30px",
-                textAlign: "center",
-                cursor: "zoom-in",
-                height: "500px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                padding: "20px",
+                aspectRatio: "3960/2640",
+                position: "relative",
                 overflow: "hidden",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.08)"
+                boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                maxHeight: "70vh"
               }}
-              onClick={() => setIsModalOpen(true)}
             >
-              <img
-                src={`http://localhost:5000/uploads/${activeImage?.replace(/^.*[\\\\\\/]/, '')}`}
-                alt="Main product"
+              {/* Carousel Media */}
+              <div
                 style={{
-                  maxWidth: "100%",
-                  maxHeight: "100%",
-                  objectFit: "contain",
-                  borderRadius: "12px"
+                  display: "flex",
+                  transform: `translateX(-${currentImageIndex * 100}%)`,
+                  transition: "transform 0.3s ease",
+                  height: "100%"
                 }}
-              />
+              >
+                {allMedia.map((media: string, index: number) => (
+                  <div
+                    key={`carousel-${index}-${media}`}
+                    style={{
+                      minWidth: "100%",
+                      height: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: isVideo(media) ? "pointer" : "zoom-in"
+                    }}
+                    onClick={() => !isVideo(media) && setIsModalOpen(true)}
+                  >
+                    {isVideo(media) ? (
+                      <video
+                        controls
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                          borderRadius: "12px"
+                        }}
+                      >
+                        <source src={`http://localhost:5000/uploads/${media.replace(/^.*[\\\\\\/]/, '')}`} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : (
+                      <img
+                        src={`http://localhost:5000/uploads/${media.replace(/^.*[\\\\\\/]/, '')}`}
+                        alt={`Product media ${index + 1}`}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                          borderRadius: "12px"
+                        }}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Navigation Arrows */}
+              {allMedia.length > 1 && (
+                <>
+                  <button
+                    className="carousel-arrows"
+                    onClick={() => setCurrentImageIndex(prev => prev > 0 ? prev - 1 : allMedia.length - 1)}
+                    style={{
+                      position: "absolute",
+                      left: "15px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      background: "rgba(0,0,0,0.7)",
+                      border: "none",
+                      borderRadius: "50%",
+                      width: "45px",
+                      height: "45px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "20px",
+                      color: "white",
+                      boxShadow: "0 2px 12px rgba(0,0,0,0.3)",
+                      transition: "all 0.2s ease",
+                      zIndex: 10
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "rgba(0,0,0,0.9)";
+                      e.currentTarget.style.transform = "translateY(-50%) scale(1.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "rgba(0,0,0,0.7)";
+                      e.currentTarget.style.transform = "translateY(-50%) scale(1)";
+                    }}
+                  >
+                    ‹
+                  </button>
+                  <button
+                    className="carousel-arrows"
+                    onClick={() => setCurrentImageIndex(prev => prev < allMedia.length - 1 ? prev + 1 : 0)}
+                    style={{
+                      position: "absolute",
+                      right: "15px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      background: "rgba(0,0,0,0.7)",
+                      border: "none",
+                      borderRadius: "50%",
+                      width: "45px",
+                      height: "45px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "20px",
+                      color: "white",
+                      boxShadow: "0 2px 12px rgba(0,0,0,0.3)",
+                      transition: "all 0.2s ease",
+                      zIndex: 10
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "rgba(0,0,0,0.9)";
+                      e.currentTarget.style.transform = "translateY(-50%) scale(1.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "rgba(0,0,0,0.7)";
+                      e.currentTarget.style.transform = "translateY(-50%) scale(1)";
+                    }}
+                  >
+                    ›
+                  </button>
+                </>
+              )}
+
+              {/* Carousel Indicators */}
+              {allMedia.length > 1 && (
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "15px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    display: "flex",
+                    gap: "10px",
+                    background: "rgba(0,0,0,0.5)",
+                    padding: "8px 12px",
+                    borderRadius: "20px"
+                  }}
+                >
+                  {allMedia.map((media, index) => (
+                    <button
+                      key={`indicator-${index}`}
+                      onClick={() => setCurrentImageIndex(index)}
+                      style={{
+                        width: "12px",
+                        height: "12px",
+                        borderRadius: "50%",
+                        border: "2px solid white",
+                        background: currentImageIndex === index ? "var(--primary-teal)" : "transparent",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease"
+                      }}
+                      title={isVideo(media) ? "Video" : "Image"}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
-            <div style={{ display: "flex", gap: "12px", justifyContent: "center", marginTop: "20px", flexWrap: "wrap" }}>
-              {thumbnails.map((img: string, i: number) => (
-                <img
-                  key={`thumb-${i}-${img}`}
-                  src={`http://localhost:5000/uploads/${img.replace(/^.*[\\\\\\/]/, '')}`}
-                  alt={`thumb-${i}`}
-                  onClick={() => setActiveImage(img)}
-                  style={{
-                    width: "70px",
-                    height: "70px",
-                    objectFit: "cover",
-                    border: activeImage === img ? "3px solid var(--primary-teal)" : "2px solid #e9ecef",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    transition: "all 0.2s ease",
-                    opacity: activeImage === img ? 0.8 : 1
-                  }}
-                />
-              ))}
-            </div>
+            {/* Thumbnail Navigation */}
+            {allMedia.length > 1 && (
+              <div
+                className="thumbnail-grid"
+                style={{
+                  display: "flex",
+                  gap: "12px",
+                  marginTop: "20px",
+                  justifyContent: "center",
+                  flexWrap: "wrap"
+                }}
+              >
+                {allMedia.map((media: string, index: number) => (
+                  <div
+                    className="thumbnail-item"
+                    key={`thumb-${index}-${media}`}
+                    onClick={() => setCurrentImageIndex(index)}
+                    style={{
+                      width: "80px",
+                      height: "80px",
+                      borderRadius: "8px",
+                      overflow: "hidden",
+                      cursor: "pointer",
+                      border: currentImageIndex === index ? "3px solid var(--primary-teal)" : "3px solid transparent",
+                      transition: "all 0.2s ease",
+                      position: "relative",
+                      background: "#f0f0f0"
+                    }}
+                  >
+                    {isVideo(media) ? (
+                      <>
+                        <video
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover"
+                          }}
+                          muted
+                        >
+                          <source src={`http://localhost:5000/uploads/${media.replace(/^.*[\\\\\\/]/, '')}`} type="video/mp4" />
+                        </video>
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                            background: "rgba(0,0,0,0.7)",
+                            borderRadius: "50%",
+                            width: "24px",
+                            height: "24px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "white",
+                            fontSize: "12px"
+                          }}
+                        >
+                          ▶
+                        </div>
+                      </>
+                    ) : (
+                      <img
+                        src={`http://localhost:5000/uploads/${media.replace(/^.*[\\\\\\/]/, '')}`}
+                        alt={`Thumbnail ${index + 1}`}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover"
+                        }}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>
@@ -250,14 +471,14 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId: propPr
                 {product.catagory_name}
               </span>
             </div>
-            <h1 style={{ fontSize: "2.5rem", fontWeight: "700", color: "#212529", marginBottom: "16px", lineHeight: "1.2" }}>
+            <h1 className="product-title" style={{ fontSize: "2.5rem", fontWeight: "700", color: "#212529", marginBottom: "16px", lineHeight: "1.2" }}>
               {product.p_name}
             </h1>
             <p style={{ color: "#6c757d", marginBottom: "20px", fontSize: "14px" }}>
               Product Code: {product.p_code}
             </p>
             <div style={{ marginBottom: "30px" }}>
-              <span style={{ fontSize: "2rem", fontWeight: "700", color: "var(--primary-teal)" }}>₹{product.p_price}</span>
+              <span className="product-price" style={{ fontSize: "2rem", fontWeight: "700", color: "var(--primary-teal)" }}>₹{product.p_price}</span>
               <span style={{ color: "#6c757d", marginLeft: "8px", fontSize: "14px" }}>Inclusive of all taxes</span>
             </div>
 
@@ -295,7 +516,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId: propPr
               </select>
             </div> */}
 
-            <div style={{ display: "flex", gap: "16px", marginTop: "40px" }}>
+            <div className="action-buttons" style={{ display: "flex", gap: "16px", marginTop: "40px" }}>
               <button
                 onClick={handleAddToCart}
                 style={{
@@ -336,7 +557,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId: propPr
         </div>
       </div>
 
-      <div style={{ maxWidth: "1400px", margin: "60px auto 0", padding: "0 20px" }}>
+      <div className="reviews-section" style={{ maxWidth: "1400px", margin: "60px auto 0", padding: "0 10px" }}>
         <div style={{ background: "#f8f9fa", borderRadius: "16px", padding: "40px" }}>
           <h3 style={{ fontSize: "1.8rem", fontWeight: "700", marginBottom: "30px", color: "#212529" }}>Customer Reviews</h3>
           
@@ -428,7 +649,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId: propPr
             left: 0,
             width: "100vw",
             height: "100vh",
-            backgroundColor: "rgba(0,0,0,0.7)",
+            backgroundColor: "rgba(0,0,0,0.9)",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -436,16 +657,19 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId: propPr
             cursor: "zoom-out",
           }}
         >
-          <img
-            src={`http://localhost:5000/uploads/${activeImage?.replace(/^.*[\\\\\\/]/, '')}`}
-            alt="modal preview"
-            style={{
-              maxWidth: "90%",
-              maxHeight: "90%",
-              borderRadius: "10px",
-              boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
-            }}
-          />
+          {allMedia[currentImageIndex] && !isVideo(allMedia[currentImageIndex]) && (
+            <img
+              src={`http://localhost:5000/uploads/${allMedia[currentImageIndex]?.replace(/^.*[\\\\\\/]/, '')}`}
+              alt="modal preview"
+              style={{
+                maxWidth: "95%",
+                maxHeight: "95%",
+                borderRadius: "10px",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+                objectFit: "contain"
+              }}
+            />
+          )}
         </div>
       )}
 

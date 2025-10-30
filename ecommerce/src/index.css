@@ -1,0 +1,19 @@
+/* Global Typography */
+:root {
+  --font-title: 'Playfair Display', serif;
+  --font-body: 'Lato', sans-serif;
+}
+
+* {
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, h5, h6,
+.title,
+.heading {
+  font-family: var(--font-title) !important;
+}
+
+body {
+  font-family: var(--font-body);
+}

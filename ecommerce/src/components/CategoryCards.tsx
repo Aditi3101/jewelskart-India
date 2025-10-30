@@ -26,7 +26,7 @@ const CategoryCards: React.FC<{ typeId: number }> = ({ typeId }) => {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 280px))',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
           gap: '24px',
           width: "100%",
           padding: "0 32px",

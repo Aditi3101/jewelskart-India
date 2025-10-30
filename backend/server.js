@@ -13,6 +13,18 @@ import bcrypt from "bcrypt";
 
 import nodemailer from "nodemailer";
 import adminRoutes from "./adminRoutes.js";
+import paymentRoutes from "./payment-routes.js";
+// Import CCAvenue functions with error handling
+let generatePaymentData, parseResponse;
+try {
+  const ccavenueModule = await import("./ccavenue.js");
+  generatePaymentData = ccavenueModule.generatePaymentData;
+  parseResponse = ccavenueModule.parseResponse;
+  console.log('✅ CCAvenue module loaded successfully');
+} catch (err) {
+  console.warn('⚠️ CCAvenue module not found, payment features will use fallback');
+  console.error('CCAvenue import error:', err.message);
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -29,7 +41,8 @@ app.use(
     origin: [
       "http://localhost:5173", 
       "http://localhost:5174",
-      "https://jewelskart-india.onrender.com"
+      "https://jewelskart-india.onrender.com",
+      "https://jewelskart-backend.onrender.com"
     ],
     methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true,
@@ -37,9 +50,36 @@ app.use(
 );
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    ccavenue: generatePaymentData ? 'Available' : 'Not Available',
+    ccavenueUrl: process.env.CCAVENUE_URL,
+    ngrokUrl: process.env.NGROK_URL
+  });
+});
+
+// Test CCAvenue configuration
+app.get('/test-ccavenue', (req, res) => {
+  res.json({
+    merchantId: process.env.CCAVENUE_MERCHANT_ID,
+    accessCode: process.env.CCAVENUE_ACCESS_CODE,
+    workingKey: process.env.CCAVENUE_WORKING_KEY ? 'Set' : 'Not Set',
+    ccavenueUrl: process.env.CCAVENUE_URL,
+    ngrokUrl: process.env.NGROK_URL,
+    encryptionTest: generatePaymentData ? 'Available' : 'Not Available'
+  });
+});
 
 // Admin routes
 app.use('/admin', adminRoutes);
+
+// Payment routes
+app.use('/api', paymentRoutes);
 
 // Serve image uploads
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -65,89 +105,39 @@ const verifyApiKey = (req, res, next) => {
 // 🔐 AUTH APIS
 // ==============================
 
-// ✅ Register API
-// app.post("/register", verifyApiKey, (req, res) => {
-//   const { fname, lname, email, pass } = req.body;
-//   const status = "active";
 
-//   const checkQuery = "SELECT * FROM registration WHERE Email = ?";
-//   db.query(checkQuery, [email], (err, result) => {
-//     if (err) return res.json({ success: false, message: "DB error" });
-//     if (result.length > 0)
-//       return res.json({ success: false, message: "Email already registered" });
 
-//     const insertQuery = `
-//       INSERT INTO registration (fname, lname, Email, pass, status)
-//       VALUES (?, ?, ?, ?, ?)
-//     `;
-//     db.query(insertQuery, [fname, lname, email, pass, status], (err) => {
-//       if (err) return res.json({ success: false, message: "Insert failed" });
-//       return res.json({ success: true });
-//     });
-//   });
-// });
+// Reset Password
+app.post("/reset-password", async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) {
+      return res.status(400).json({ success: false, message: "Token and password required" });
+    }
 
-// app.post("/login", verifyApiKey, async (req, res) => {
-//   const { email, pass } = req.body;
+    const [rows] = await db.promise().query(
+      "SELECT * FROM registration WHERE reset_token = ? AND reset_expiry > NOW()",
+      [token]
+    );
 
-//   try {
-//     // Check if credentials are valid
-//     const [rows] = await db
-//       .promise()
-//       .query("SELECT * FROM registration WHERE Email = ? AND pass = ?", [
-//         email,
-//         pass,
-//       ]);
+    if (rows.length === 0) {
+      return res.json({ success: false, message: "Invalid or expired token" });
+    }
 
-//     if (rows.length === 1) {
-//       const user = rows[0];
+    const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    await db.promise().query(
+      "UPDATE registration SET pass = ?, reset_token = NULL, reset_expiry = NULL WHERE reset_token = ?",
+      [hashedPassword, token]
+    );
 
-//       // ✅ Generate JWT token
-//       const token = jwt.sign(
-//         { email: user.Email, id: user.customer_id },
-//         process.env.JWT_SECRET,
-//         { expiresIn: "1h" }
-//       );
+    res.json({ success: true, message: "Password reset successful" });
+  } catch (error) {
+    console.error("Reset password error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
 
-//       // Check if user is already logged in
-//       if (!user.is_logged_in) {
-//         // Update individual login count & last login, and set is_logged_in to true
-//         await db
-//           .promise()
-//           .query(
-//             "UPDATE registration SET login_count = login_count + 1, last_login = NOW(), is_logged_in = TRUE WHERE Email = ?",
-//             [email]
-//           );
 
-//         // Update global login counter
-//         try {
-//           await db
-//             .promise()
-//             .query("UPDATE login_counter SET count = count + 1 WHERE id = 1");
-//           console.log("✅ Global login counter incremented");
-//         } catch (err) {
-//           console.error("❌ Failed to update global login counter:", err);
-//         }
-//       }
-
-//       return res.json({
-//         success: true,
-//         message: "Login successful",
-//         token,
-//         user: {
-//           id: user.customer_id,
-//           name: `${user.fname} ${user.lname}`,
-//           email: user.Email,
-//         },
-//       });
-//     } else {
-//       return res.json({ success: false, message: "Invalid credentials" });
-//     }
-//   } catch (err) {
-//     console.error("❌ Login error:", err);
-//     return res.status(500).json({ success: false, message: "Server error" });
-//   }
-// });
 
 /*
   Register: hash password then insert.
@@ -191,6 +181,70 @@ app.post("/register", verifyApiKey, async (req, res) => {
 /*
   Login: fetch user by email then compare bcrypt.
 */
+// Configure nodemailer transporter
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
+
+// Forgot Password
+app.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: "Email required" });
+    }
+
+    const [rows] = await db.promise().query("SELECT * FROM registration WHERE Email = ?", [email]);
+    if (rows.length === 0) {
+      return res.json({ success: false, message: "Email not found" });
+    }
+
+    // Generate reset token
+    const resetToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const resetExpiry = new Date(Date.now() + 3600000); // 1 hour from now
+
+    // Save token to database
+    await db.promise().query(
+      "UPDATE registration SET reset_token = ?, reset_expiry = ? WHERE Email = ?",
+      [resetToken, resetExpiry, email]
+    );
+
+    // Send reset email
+    const resetUrl = `http://localhost:5173/reset-password?token=${resetToken}`;
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Password Reset Request - Meeon Jewels',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #333;">Password Reset Request</h2>
+          <p>Hello,</p>
+          <p>You requested a password reset for your Meeon Jewels account. Click the button below to reset your password:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetUrl}" style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a>
+          </div>
+          <p>Or copy and paste this link in your browser:</p>
+          <p style="word-break: break-all; color: #007bff;">${resetUrl}</p>
+          <p><strong>This link will expire in 1 hour.</strong></p>
+          <p>If you didn't request this password reset, please ignore this email.</p>
+          <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+          <p style="font-size: 12px; color: #666;">Meeon Jewels | www.meeonjewels.com</p>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.json({ success: true, message: "Reset link sent to your email" });
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 app.post("/login", verifyApiKey, async (req, res) => {
   try {
     const { email, pass } = req.body;
@@ -266,34 +320,7 @@ app.get("/logged-in-count", (req, res) => {
   });
 });
 
-// app.post("/login", verifyApiKey, (req, res) => {
-//   const { email, pass } = req.body;
-//   const query = "SELECT * FROM registration WHERE Email = ? AND pass = ?";
-//   db.query(query, [email, pass], (err, result) => {
-//     if (err) return res.json({ success: false, message: "DB error" });
 
-//     if (result.length > 0) {
-//       const user = result[0];
-//       const token = jwt.sign(
-//         { email: user.Email, id: user.customer_id },
-//         process.env.JWT_SECRET,
-//         { expiresIn: "1h" }
-//       );
-
-//       // ✅ Increment login count and update last_login timestamp
-//       const updateQuery = "UPDATE registration SET login_count = login_count + 1, last_login = NOW() WHERE Email = ?";
-//       db.query(updateQuery, [email], (updateErr) => {
-//         if (updateErr) {
-//           console.error("Login count or last_login update failed", updateErr);
-//         }
-//       });
-
-//       return res.json({ success: true, token });
-//     }
-
-//     return res.json({ success: false, message: "Invalid email or password" });
-//   });
-// });
 
 // ==============================
 // ✅ Get user by email (Protected by API key)
@@ -491,31 +518,7 @@ app.post("/cart", (req, res) => {
   });
 });
 
-// app.get("/cart", (req, res) => {
-//   const customer_id = req.query.customer_id;
-//   if (!customer_id) {
-//     return res.status(400).json({ error: "Missing customer_id" });
-//   }
 
-//   // Auto-delete expired items (older than 4 days)
-//   db.query(
-//     "DELETE FROM cart WHERE customer_id = ? AND created_at < NOW() - INTERVAL 4 DAY",
-//     [customer_id],
-//     (err) => {
-//       if (err) console.error("Error deleting expired items:", err);
-//     }
-//   );
-
-//   // Then return only fresh items
-//   db.query(
-//     "SELECT * FROM cart WHERE customer_id = ? AND created_at >= NOW() - INTERVAL 4 DAY",
-//     [customer_id],
-//     (err, result) => {
-//       if (err) return res.status(500).json({ error: "DB error" });
-//       res.json(result);
-//     }
-//   );
-// });
 app.get("/cart", (req, res) => {
   const customer_id = req.query.customer_id;
   if (!customer_id) {
@@ -924,395 +927,218 @@ app.get("/api/product/:id", (req, res) => {
   });
 });
 
-// ✅ Add this route at the bottom of your server.js
+// ==============================
+// 💳 CCAVENUE PAYMENT GATEWAY
+// ==============================
 
-// app.post("/place-order", async (req, res) => {
-//   const { user, cart, subtotal, gst, total } = req.body;
+// Initiate payment
+app.post("/initiate-payment", verifyApiKey, async (req, res) => {
+  console.log('🔄 Payment initiation started');
+  
+  try {
+    const { user, cart, subtotal, gst, total } = req.body;
+    console.log('📋 Payment data received:', { 
+      userExists: !!user, 
+      cartLength: cart?.length, 
+      total 
+    });
+    
+    if (!user || !cart || cart.length === 0) {
+      console.log('❌ Missing required data');
+      return res.status(400).json({ success: false, message: "Missing data" });
+    }
 
-//   if (!user || !cart || cart.length === 0) {
-//     return res.status(400).json({ success: false, message: "Missing data" });
-//   }
+    // Check if CCAvenue functions are available
+    if (!generatePaymentData || !parseResponse) {
+      console.log('⚠️ CCAvenue functions not available, using fallback');
+      
+      // Fallback: Process order directly without payment gateway
+      try {
+        console.log('🔄 Testing database connection...');
+        await db.promise().execute('SELECT 1');
+        console.log('✅ Database connection successful');
+        
+        const timestamp = Date.now();
+        const invoiceNumber = timestamp;
+        
+        console.log('🔄 Inserting order into database...');
+        // Insert into orders table
+        const [orderResult] = await db.promise().query(
+          "INSERT INTO orders (customer_id, subtotal, gst, total, invoice_file, invoice, payment_status) VALUES (?, ?, ?, ?, ?, ?, ?)",
+          [user.customer_id, subtotal, gst, total, `invoice_${timestamp}.pdf`, invoiceNumber, 'pending']
+        );
 
-//   const htmlInvoice = `
-//     <h2 style="color:#333">Order Invoice</h2>
-//     <p><strong>Name:</strong> ${user.fname} ${user.lname}</p>
-//     <p><strong>Address:</strong> ${user.street_address}</p>
-//     <p><strong>Phone:</strong> ${user.phone}</p>
-//     <hr/>
-//     <h4>Items:</h4>
-//     <ul>
-//       ${cart.map(item =>
-//         `<li>${item.p_name} - ₹${item.p_price} × ${item.quantity} = ₹${item.p_price * item.quantity}</li>`
-//       ).join('')}
-//     </ul>
-//     <hr/>
-//     <p><strong>Subtotal:</strong> ₹${subtotal.toFixed(2)}</p>
-//     <p><strong>GST (18%):</strong> ₹${gst.toFixed(2)}</p>
-//     <h3 style="color:green">Total Payable: ₹${total.toFixed(2)}</h3>
-//   `;
+        const orderId = orderResult.insertId;
+        console.log('✅ Order created with ID:', orderId);
 
-//   const transporter = nodemailer.createTransport({
-//     service: "gmail",
-//     auth: {
-//       user: process.env.EMAIL_USER,
-//       pass: process.env.EMAIL_PASS, // Use Gmail App Password
-//     },
-//   });
+        // Insert order items
+        console.log('🔄 Inserting order items...');
+        for (const item of cart) {
+          await db.promise().query(
+            "INSERT INTO order_items (order_id, p_id, quantity, price_at_time, total_price) VALUES (?, ?, ?, ?, ?)",
+            [orderId, item.p_id, item.quantity, item.p_price, item.p_price * item.quantity]
+          );
+        }
+        console.log('✅ Order items inserted');
 
-//   const mailOptions = {
-//     from: process.env.EMAIL_USER,
-//     to: user.Email,
-//     subject: "Your Order Invoice",
-//     html: htmlInvoice,
-//   };
+        // Clear cart
+        console.log('🔄 Clearing cart...');
+        await db.promise().query("DELETE FROM cart WHERE customer_id = ?", [user.customer_id]);
+        console.log('✅ Cart cleared');
+        
+        return res.json({
+          success: true,
+          message: 'Order placed successfully (Payment gateway unavailable)',
+          redirect: '/order-placed'
+        });
+      } catch (dbError) {
+        console.error('❌ Database error:', dbError);
+        // If database fails, still return success but with different message
+        return res.json({
+          success: true,
+          message: 'Order received (will be processed manually)',
+          redirect: '/order-placed'
+        });
+      }
+    }
 
-//   try {
-//     await transporter.sendMail(mailOptions);
+    console.log('🔄 Using CCAvenue payment gateway');
+    const orderId = `ORD${Date.now()}`;
+    const amount = total.toFixed(2);
+    
+    // Store order temporarily
+    const tempOrderData = {
+      orderId,
+      user,
+      cart,
+      subtotal,
+      gst,
+      total,
+      status: 'pending',
+      createdAt: new Date()
+    };
+    
+    // Store in database or memory (for demo, using simple storage)
+    global.tempOrders = global.tempOrders || {};
+    global.tempOrders[orderId] = tempOrderData;
+    console.log('✅ Temporary order stored:', orderId);
 
-//     // ✅ Optional: Clear the cart
-//     db.query("DELETE FROM cart WHERE customer_id = ?", [user.customer_id], (err) => {
-//       if (err) console.error("Cart clear failed", err);
-//     });
+    const paymentData = generatePaymentData({
+      orderId,
+      amount,
+      customerName: `${user.fname} ${user.lname}`,
+      customerEmail: user.Email,
+      customerPhone: user.phone || '9999999999',
+      billingAddress: user.street_address || 'N/A',
+      redirectUrl: `http://localhost:5000/payment-response`,
+      cancelUrl: `http://localhost:5000/payment-cancel`
+    });
+    console.log('✅ Payment data generated');
 
-//     res.json({ success: true, message: "Invoice sent successfully" });
-//   } catch (err) {
-//     console.error("Error sending email:", err);
-//     res.status(500).json({ success: false, message: "Failed to send invoice" });
-//   }
-// });
+    res.json({
+      success: true,
+      paymentData,
+      ccavenueUrl: process.env.CCAVENUE_URL || 'https://test.ccavenue.com/transaction/transaction.do?command=initiateTransaction'
+    });
+  } catch (error) {
+    console.error('❌ Payment initiation error:', error);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Payment initiation failed', 
+      error: error.message,
+      details: error.stack 
+    });
+  }
+});
+
+// Handle payment response
+app.post("/payment-response", async (req, res) => {
+  try {
+    const { encResp } = req.body;
+    
+    if (!encResp) {
+      return res.status(400).json({ success: false, message: 'Invalid response' });
+    }
+
+    const responseData = parseResponse(encResp);
+    
+    if (!responseData) {
+      return res.status(400).json({ success: false, message: 'Failed to parse response' });
+    }
+
+    const { orderId, orderStatus, amount, trackingId, bankRefNo } = responseData;
+    
+    // Get temp order data
+    const tempOrder = global.tempOrders?.[orderId];
+    
+    if (!tempOrder) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    if (orderStatus === 'Success') {
+      // Process successful payment
+      await processSuccessfulPayment(tempOrder, responseData);
+      
+      // Clean up temp order
+      delete global.tempOrders[orderId];
+      
+      res.redirect(`http://localhost:5173/payment-success?orderId=${orderId}&trackingId=${trackingId}`);
+    } else {
+      // Handle failed payment
+      res.redirect(`http://localhost:5173/payment-failed?orderId=${orderId}&reason=${responseData.failureMessage || 'Payment failed'}`);
+    }
+  } catch (error) {
+    console.error('Payment response error:', error);
+    res.redirect('http://localhost:5173/payment-failed?reason=Processing error');
+  }
+});
+
+// Handle payment cancellation
+app.post("/payment-cancel", (req, res) => {
+  const { merchant_param1 } = req.body;
+  res.redirect(`http://localhost:5173/payment-cancelled?orderId=${merchant_param1 || 'unknown'}`);
+});
+
+// Process successful payment
+async function processSuccessfulPayment(tempOrder, paymentResponse) {
+  const { user, cart, subtotal, gst, total } = tempOrder;
+  const { orderId, trackingId, bankRefNo } = paymentResponse;
+  
+  try {
+    // Insert into orders table
+    const [orderResult] = await db.promise().query(
+      "INSERT INTO orders (customer_id, subtotal, gst, total, payment_status, tracking_id, bank_ref_no, order_id_external) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [user.customer_id, subtotal, gst, total, 'paid', trackingId, bankRefNo, orderId]
+    );
+
+    const dbOrderId = orderResult.insertId;
+
+    // Insert order items
+    for (const item of cart) {
+      await db.promise().query(
+        "INSERT INTO order_items (order_id, p_id, quantity, price_at_time, total_price) VALUES (?, ?, ?, ?, ?)",
+        [dbOrderId, item.p_id, item.quantity, item.p_price, item.p_price * item.quantity]
+      );
+    }
+
+    // Generate and send invoice (existing code)
+    await generateInvoice(user, cart, subtotal, gst, total, orderId);
+    
+    // Clear cart
+    db.query("DELETE FROM cart WHERE customer_id = ?", [user.customer_id]);
+    
+    console.log(`✅ Order ${orderId} processed successfully`);
+  } catch (error) {
+    console.error('Error processing successful payment:', error);
+    throw error;
+  }
+}
+
+
 
 // ==============================
 // 📧 ORDER INVOICE & EMAIL
-// app.post("/place-order", async (req, res) => {
-//   const { user, cart, subtotal, gst, total } = req.body;
-
-//   if (!user || !cart || cart.length === 0) {
-//     console.error("Place order failed: Missing data");
-//     return res.status(400).json({ success: false, message: "Missing data" });
-//   }
-
-//   try {
-//     const PDFDocument = await import("pdfkit").then((m) => m.default);
-//     const doc = new PDFDocument();
-//     const filename = `invoice_${Date.now()}.pdf`;
-//     const invoiceDir = path.join(__dirname, "invoices");
-//     const invoicePath = path.join(invoiceDir, filename);
-
-//     // ✅ Ensure invoice directory exists
-//     if (!fs.existsSync(invoiceDir)) {
-//       fs.mkdirSync(invoiceDir);
-//     }
-
-//     const writeStream = fs.createWriteStream(invoicePath);
-//     doc.pipe(writeStream);
-
-//     // ✅ PDF Content
-//     doc.fontSize(20).text("INVOICE", { align: "center" }).moveDown();
-//     doc.fontSize(12).text(`Name: ${user.fname} ${user.lname}`);
-//     doc.text(`Email: ${user.Email}`);
-//     doc.text(`Phone: ${user.phone}`);
-//     doc.text(`Address: ${user.street_address}`).moveDown();
-
-//     doc.text("Items:");
-//     cart.forEach((item, index) => {
-//       doc.text(
-//         `${index + 1}. ${item.p_name} - ₹${item.p_price} × ${item.quantity} = ₹${item.p_price * item.quantity}`
-//       );
-//     });
-
-//     doc.moveDown();
-//     doc.text(`Subtotal: ₹${subtotal}`);
-//     doc.text(`GST (18%): ₹${gst}`);
-//     doc.font("Helvetica-Bold").text(`Total: ₹${total}`);
-//     doc.end();
-
-//     // ✅ After PDF is written, send email
-//     writeStream.on("finish", async () => {
-//       console.log("Invoice PDF generated:", invoicePath);
-
-//       // ✅ Setup nodemailer
-//       const transporter = nodemailer.createTransport({
-//         service: "gmail",
-//         auth: {
-//           user: process.env.EMAIL_USER,
-//           pass: process.env.EMAIL_PASS,
-//         },
-//       });
-
-//       const mailOptions = {
-//         from: process.env.EMAIL_USER,
-//         to: user.Email,
-//         subject: "Your Order Invoice",
-//         html: `
-//           <p>Dear ${user.fname},</p>
-//           <p>Thank you for your order. Please find your invoice attached.</p>
-//           <p>Regards,<br/>Your Shop Team</p>
-//         `,
-//         attachments: [
-//           {
-//             filename: filename,
-//             path: invoicePath,
-//           },
-//         ],
-//       };
-
-//       try {
-//         await transporter.sendMail(mailOptions);
-//         console.log("Email sent to:", user.Email);
-//       } catch (err) {
-//         console.error("Email send error:", err);
-//       }
-
-//       // ✅ Optional: Clear cart
-//       db.query("DELETE FROM cart WHERE customer_id = ?", [user.customer_id], (err) => {
-//         if (err) console.error("Cart clear failed", err);
-//       });
-
-//       res.json({
-//         success: true,
-//         message: "Order placed, invoice generated and emailed.",
-//         invoiceUrl: `http://localhost:5000/invoices/${filename}`,
-//       });
-//     });
-
-//     writeStream.on("error", (err) => {
-//       console.error("PDF write error:", err);
-//       res.status(500).json({ success: false, message: "Failed to generate invoice" });
-//     });
-//   } catch (error) {
-//     console.error("Order placement error:", error);
-//     res.status(500).json({ success: false, message: "Internal Server Error" });
-//   }
-// });
-
-// app.post("/place-order", async (req, res) => {
-//   const { user, cart, subtotal, gst, total } = req.body;
-
-//   if (!user || !cart || cart.length === 0) {
-//     return res.status(400).json({ success: false, message: "Missing data" });
-//   }
-
-//   try {
-//     const PDFDocument = await import("pdfkit").then((m) => m.default);
-//     const doc = new PDFDocument({ size: "A4", margin: 50 });
-//     const filename = `invoice_${Date.now()}.pdf`;
-//     const invoiceDir = path.join(__dirname, "invoices");
-//     const invoicePath = path.join(invoiceDir, filename);
-
-//     if (!fs.existsSync(invoiceDir)) {
-//       fs.mkdirSync(invoiceDir);
-//     }
-
-//     const writeStream = fs.createWriteStream(invoicePath);
-//     doc.pipe(writeStream);
-
-//     // ✅ Logo and Header
-//     try {
-//       const logoPath = path.join(__dirname, "logo.png");
-//       if (fs.existsSync(logoPath)) {
-//         doc.image(logoPath, 50, 40, { width: 50 });
-//       }
-//     } catch {
-//       console.warn("Logo not found, skipping.");
-//     }
-
-//     doc
-//       .fontSize(22)
-//       .font("Helvetica-Bold")
-//       .text("Meeon Jewels - Invoice", 0, 50, { align: "right" })
-//       .moveDown();
-
-//     doc
-//       .fontSize(11)
-//       .font("Helvetica")
-//       .text(`Invoice Date: ${new Date().toLocaleDateString()}`, { align: "right" })
-//       .text(`Invoice No: ${Date.now()}`, { align: "right" })
-//       .moveDown();
-
-//     doc
-//       .moveTo(50, doc.y)
-//       .lineTo(550, doc.y)
-//       .strokeColor("#cccccc")
-//       .stroke()
-//       .moveDown(1);
-
-//     // ✅ Customer Info
-//     doc
-//       .fontSize(13)
-//       .fillColor("#000")
-//       .font("Helvetica-Bold")
-//       .text("Bill To:", 50, doc.y)
-//       .moveDown(0.2);
-
-//     doc
-//       .font("Helvetica")
-//       .fontSize(11)
-//       .fillColor("#333")
-//       .text(`Name: ${user.fname} ${user.lname}`)
-//       .text(`Email: ${user.Email}`)
-//       .text(`Phone: ${user.phone}`)
-//       .text(`Address: ${user.street_address}`)
-//       .moveDown(1);
-
-//     doc
-//       .moveTo(50, doc.y)
-//       .lineTo(550, doc.y)
-//       .strokeColor("#cccccc")
-//       .stroke()
-//       .moveDown(1);
-
-//     // ✅ Product Table Layout
-//     const tableTop = doc.y + 10;
-//     const columnWidths = {
-//       no: 40,
-//       product: 200,
-//       price: 80,
-//       qty: 50,
-//       total: 80,
-//     };
-//     const colX = {
-//       no: 50,
-//       product: 90,
-//       price: 300,
-//       qty: 380,
-//       total: 450,
-//     };
-
-//     doc.font("Helvetica-Bold").fontSize(12);
-//     doc.text("No", colX.no, tableTop);
-//     doc.text("Product", colX.product, tableTop);
-//     doc.text("Price", colX.price, tableTop, { width: columnWidths.price, align: "right" });
-//     doc.text("Qty", colX.qty, tableTop, { width: columnWidths.qty, align: "right" });
-//     doc.text("Total", colX.total, tableTop, { width: columnWidths.total, align: "right" });
-
-//     doc
-//       .moveTo(50, tableTop + 15)
-//       .lineTo(550, tableTop + 15)
-//       .strokeColor("#cccccc")
-//       .stroke();
-
-//     doc.font("Helvetica").fontSize(11);
-//     let y = tableTop + 25;
-
-//     cart.forEach((item, index) => {
-//       const totalPrice = item.p_price * item.quantity;
-
-//       doc.text(index + 1, colX.no, y, { width: columnWidths.no });
-//       doc.text(item.p_name, colX.product, y, { width: columnWidths.product });
-//       doc.text(`₹${item.p_price}`, colX.price, y, {
-//         width: columnWidths.price,
-//         align: "right",
-//       });
-//       doc.text(item.quantity.toString(), colX.qty, y, {
-//         width: columnWidths.qty,
-//         align: "right",
-//       });
-//       doc.text(`₹${totalPrice}`, colX.total, y, {
-//         width: columnWidths.total,
-//         align: "right",
-//       });
-
-//       y += 20;
-
-//       // Optional row separator
-//       doc
-//         .moveTo(50, y)
-//         .lineTo(550, y)
-//         .strokeColor("#eeeeee")
-//         .stroke();
-//     });
-
-//     // ✅ Totals
-//     y += 20;
-//     doc.font("Helvetica-Bold").fontSize(12);
-//     doc.text(`Subtotal: ₹${subtotal.toFixed(2)}`, 400, y, { align: "right" });
-//     doc.text(`GST (18%): ₹${gst.toFixed(2)}`, 400, y + 20, { align: "right" });
-//     doc
-//       .fontSize(14)
-//       .text(`Total: ₹${total.toFixed(2)}`, 400, y + 40, {
-//         align: "right",
-//         underline: true,
-//       });
-
-//     doc.moveDown(2);
-//     doc
-//       .fontSize(11)
-//       .font("Helvetica")
-//       .fillColor("#444")
-//       .text("Thank you for shopping with Meeon Jewels!", {
-//         align: "center",
-//       });
-
-//     doc.end();
-
-//     // ✅ On PDF creation complete
-//     writeStream.on("finish", async () => {
-//       const transporter = nodemailer.createTransport({
-//         service: "gmail",
-//         auth: {
-//           user: process.env.EMAIL_USER,
-//           pass: process.env.EMAIL_PASS,
-//         },
-//       });
-
-//       const mailOptions = {
-//         from: `"Meeon Jewels" <${process.env.EMAIL_USER}>`,
-//         to: user.Email,
-//         subject: "Your Meeon Jewels Invoice",
-//         html: `
-//           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
-//             <h2 style="color: #333;">🧾 Invoice Confirmation</h2>
-//             <p>Dear <strong>${user.fname}</strong>,</p>
-//             <p>Thank you for your order! Your invoice is attached below.</p>
-//             <h4>Order Summary:</h4>
-//             <ul style="padding-left: 20px;">
-//               ${cart
-//                 .map(
-//                   (item) =>
-//                     `<li>${item.p_name} - ₹${item.p_price} × ${item.quantity} = ₹${item.p_price * item.quantity}</li>`
-//                 )
-//                 .join("")}
-//             </ul>
-//             <p><strong>Total Paid: ₹${total.toFixed(2)}</strong></p>
-//             <hr/>
-//             <p style="font-size: 13px; color: #999;">Meeon Jewels | www.meeonjewels.com</p>
-//           </div>
-//         `,
-//         attachments: [
-//           {
-//             filename: filename,
-//             path: invoicePath,
-//           },
-//         ],
-//       };
-
-//       try {
-//         await transporter.sendMail(mailOptions);
-//         console.log("✅ Email sent to:", user.Email);
-//       } catch (err) {
-//         console.error("❌ Failed to send email:", err);
-//       }
-
-//       db.query("DELETE FROM cart WHERE customer_id = ?", [user.customer_id], (err) => {
-//         if (err) console.error("⚠️ Failed to clear cart:", err);
-//       });
-
-//       res.json({
-//         success: true,
-//         message: "Order placed, invoice generated and emailed.",
-//         invoiceUrl: `http://localhost:5000/invoices/${filename}`,
-//       });
-//     });
-
-//     writeStream.on("error", (err) => {
-//       console.error("❌ PDF write error:", err);
-//       res.status(500).json({ success: false, message: "Failed to generate invoice" });
-//     });
-//   } catch (error) {
-//     console.error("❌ Unexpected error:", error);
-//     res.status(500).json({ success: false, message: "Internal Server Error" });
-//   }
-// });
 
 app.post("/place-order", async (req, res) => {
   const { user, cart, subtotal, gst, total } = req.body;
@@ -1682,17 +1508,6 @@ app.get("/orders/:orderId", verifyApiKey, async (req, res) => {
 
 // ==============================
 // 👁️ VISIT COUNTER
-// app.post("/increment-visit", async (req, res) => {
-//   try {
-//     const promiseDb = db.promise();
-//     await promiseDb.query("UPDATE views SET count = (count + 1) WHERE id = 1");
-//     const [rows] = await promiseDb.query("SELECT count FROM views WHERE id = 1");
-//     res.json({ success: true, count: rows[0].count});
-//   } catch (err) {
-//     console.error("Error updating view count", err);
-//     res.status(500).json({ success: false, message: "Failed to update views" });
-//   }
-// });
 
 // API: Get all banners
 app.get("/api/banners", async (req, res) => {
@@ -1740,12 +1555,12 @@ app.get("/api/banners/:placement", async (req, res) => {
 // ==============================
 
 // Get all reviews for homepage
-app.get("/api/all-reviews", verifyApiKey, async (req, res) => {
+app.get("/api/all-reviews", async (req, res) => {
   try {
     const [rows] = await db.promise().query(
-      "SELECT review_id, p_id, user_name, user_rating, user_review, datetime, created_date FROM review_table ORDER BY created_date DESC LIMIT 20"
+      "SELECT review_id, p_id, user_name, user_rating, user_review, datetime, created_date FROM review_table ORDER BY created_date DESC"
     );
-    res.json(rows);
+    res.json({ success: true, reviews: rows });
   } catch (error) {
     console.error("Error fetching all reviews:", error);
     res.status(500).json({ success: false, message: "Failed to fetch reviews" });
@@ -1813,8 +1628,13 @@ app.post("/api/reviews", async (req, res) => {
 });
 
 // ==============================
-// 🏠 ROOT ROUTE
+// 🏠 ROOT ROUTE & HEALTH CHECK
 // ==============================
+
+// Health check
+app.get('/health', (_req, res) => {
+  res.json({ ok: true, env: process.env.NODE_ENV || 'development' });
+});
 
 app.get("/", (req, res) => {
   res.json({ 

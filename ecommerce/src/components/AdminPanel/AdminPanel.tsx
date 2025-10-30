@@ -3,7 +3,7 @@ import { useLocation, useNavigate, Routes, Route } from 'react-router-dom';
 import { FaSignOutAlt, FaChevronDown, FaChevronRight } from 'react-icons/fa';
 import AdminLogin from './AdminLogin';
 import AdminDashboard from './AdminDashboard';
-import ProductManagement from './ProductManagement';
+import ProductManagementNew from './ProductManagementNew';
 import TypeManagement from './TypeManagement';
 import CategoryManagement from './CategoryManagement';
 import OrderManagement from './OrderManagement';
@@ -166,7 +166,7 @@ const AdminPanel: React.FC = () => {
           <Routes>
             <Route path="/" element={<AdminDashboard onNavigate={handleNavigation} />} />
             <Route path="/dashboard" element={<AdminDashboard onNavigate={handleNavigation} />} />
-            <Route path="/products" element={<ProductManagement />} />
+            <Route path="/products" element={<ProductManagementNew />} />
             <Route path="/types" element={<TypeManagement />} />
             <Route path="/categories" element={<CategoryManagement />} />
             <Route path="/orders" element={<OrderManagement />} />

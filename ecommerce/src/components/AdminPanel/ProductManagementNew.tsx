@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaPlus, FaSearch, FaEdit, FaTrash, FaArrowLeft } from "react-icons/fa";
+import { FaPlus, FaSearch, FaEdit, FaTrash, FaArrowLeft, FaTimes } from "react-icons/fa";
 import "./ProductManagement.css";
 import "./AdminForms.css";
 
@@ -37,7 +37,33 @@ interface Category {
   type_id: number;
 }
 
-const ProductManagement: React.FC = () => {
+interface FormData {
+  type_name: string;
+  catagory_id: string;
+  catagory_name: string;
+  p_name: string;
+  p_code: string;
+  p_details: string;
+  p_description: string;
+  p_price: string;
+  status: string;
+}
+
+interface FileState {
+  fileToUpload: File | null;
+  image1: File | null;
+  image2: File | null;
+  image3: File | null;
+}
+
+interface PreviewState {
+  fileToUpload: string;
+  image1: string;
+  image2: string;
+  image3: string;
+}
+
+const ProductManagementNew: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [types, setTypes] = useState<Type[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -47,8 +73,10 @@ const ProductManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     type_name: "",
     catagory_id: "",
     catagory_name: "",
@@ -60,18 +88,18 @@ const ProductManagement: React.FC = () => {
     status: "y",
   });
 
-  const [files, setFiles] = useState({
-    fileToUpload: null as File | null,
-    image1: null as File | null,
-    image2: null as File | null,
-    image3: null as File | null,
+  const [files, setFiles] = useState<FileState>({
+    fileToUpload: null,
+    image1: null,
+    image2: null,
+    image3: null,
   });
 
-  const [imagePreviews, setImagePreviews] = useState({
-    fileToUpload: "" as string,
-    image1: "" as string,
-    image2: "" as string,
-    image3: "" as string,
+  const [imagePreviews, setImagePreviews] = useState<PreviewState>({
+    fileToUpload: "",
+    image1: "",
+    image2: "",
+    image3: "",
   });
 
   useEffect(() => {
@@ -80,40 +108,45 @@ const ProductManagement: React.FC = () => {
     fetchCategories();
   }, [currentPage, searchTerm]);
 
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("adminToken");
+    return { Authorization: `Bearer ${token}` };
+  };
+
   const fetchTypes = async () => {
     try {
-      const token = localStorage.getItem("adminToken");
       const response = await axios.get("http://localhost:5000/admin/types", {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: getAuthHeaders()
       });
       if (response.data.success) {
         setTypes(response.data.types.filter((t: Type) => t.status === 'y'));
       }
     } catch (error) {
       console.error("Error fetching types:", error);
+      setError("Failed to fetch types");
     }
   };
 
   const fetchCategories = async () => {
     try {
-      const token = localStorage.getItem("adminToken");
       const response = await axios.get("http://localhost:5000/admin/categories", {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: getAuthHeaders()
       });
       if (response.data.success) {
         setCategories(response.data.categories.filter((c: any) => c.status === 'y'));
       }
     } catch (error) {
       console.error("Error fetching categories:", error);
+      setError("Failed to fetch categories");
     }
   };
 
   const fetchProducts = async () => {
     try {
-      const token = localStorage.getItem("adminToken");
+      setLoading(true);
       const response = await axios.get(
         `http://localhost:5000/admin/products?page=${currentPage}&search=${searchTerm}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: getAuthHeaders() }
       );
       if (response.data.success) {
         setProducts(response.data.products);
@@ -121,6 +154,9 @@ const ProductManagement: React.FC = () => {
       }
     } catch (error) {
       console.error("Error fetching products:", error);
+      setError("Failed to fetch products");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -167,64 +203,103 @@ const ProductManagement: React.FC = () => {
     const { name, files: fileList } = e.target;
     if (fileList && fileList[0]) {
       const file = fileList[0];
+      
+      // Validate file size (50MB max)
+      if (file.size > 50 * 1024 * 1024) {
+        alert("File size must be less than 50MB");
+        return;
+      }
+
       setFiles(prev => ({ ...prev, [name]: file }));
       
-      // Create preview URL
       const previewUrl = URL.createObjectURL(file);
       setImagePreviews(prev => ({ ...prev, [name]: previewUrl }));
     }
   };
 
-  const removeImage = (fieldName: string) => {
+  const removeImage = (fieldName: keyof FileState) => {
     setFiles(prev => ({ ...prev, [fieldName]: null }));
     setImagePreviews(prev => ({ ...prev, [fieldName]: "" }));
     
-    // Reset the file input
     const fileInput = document.querySelector(`input[name="${fieldName}"]`) as HTMLInputElement;
     if (fileInput) fileInput.value = "";
+  };
+
+  const validateForm = (): boolean => {
+    if (!formData.type_name) {
+      alert("Please select a type");
+      return false;
+    }
+    if (!formData.catagory_id) {
+      alert("Please select a category");
+      return false;
+    }
+    if (!formData.p_name.trim()) {
+      alert("Please enter product name");
+      return false;
+    }
+    if (!formData.p_code.trim()) {
+      alert("Please enter product code");
+      return false;
+    }
+    if (!formData.p_price || parseFloat(formData.p_price) <= 0) {
+      alert("Please enter a valid price");
+      return false;
+    }
+    
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!validateForm()) return;
+    
     try {
-      const token = localStorage.getItem("adminToken");
+      setLoading(true);
       const formDataToSend = new FormData();
 
-      formDataToSend.append("catagory_id", formData.catagory_id);
-      formDataToSend.append("type_name", formData.type_name);
-      formDataToSend.append("catagory_name", formData.catagory_name);
-      formDataToSend.append("p_name", formData.p_name);
-      formDataToSend.append("p_code", formData.p_code);
-      formDataToSend.append("p_details", formData.p_details);
-      formDataToSend.append("p_description", formData.p_description);
-      formDataToSend.append("p_price", formData.p_price);
-      formDataToSend.append("status", formData.status);
+      // Add all form fields
+      Object.entries(formData).forEach(([key, value]) => {
+        formDataToSend.append(key, value);
+      });
+
+      // Add additional fields
       formDataToSend.append("sub_type", "");
       formDataToSend.append("collection_name", "");
       formDataToSend.append("subname", "");
       formDataToSend.append("small_description", "");
 
-      if (files.fileToUpload) formDataToSend.append("fileToUpload", files.fileToUpload);
-      if (files.image1) formDataToSend.append("image1", files.image1);
-      if (files.image2) formDataToSend.append("image2", files.image2);
-      if (files.image3) formDataToSend.append("image3", files.image3);
+      // Add files
+      Object.entries(files).forEach(([key, file]) => {
+        if (file) {
+          formDataToSend.append(key, file);
+        }
+      });
 
-      if (editingProduct) {
-        await axios.put(`http://localhost:5000/admin/products/${editingProduct.p_id}`, formDataToSend, {
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" }
-        });
-      } else {
-        await axios.post("http://localhost:5000/admin/products", formDataToSend, {
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" }
-        });
+      const url = editingProduct 
+        ? `http://localhost:5000/admin/products/${editingProduct.p_id}`
+        : "http://localhost:5000/admin/products";
+      
+      const method = editingProduct ? 'put' : 'post';
+      
+      const response = await axios[method](url, formDataToSend, {
+        headers: { 
+          ...getAuthHeaders(), 
+          "Content-Type": "multipart/form-data" 
+        }
+      });
+
+      if (response.data.success) {
+        alert(editingProduct ? "Product updated successfully!" : "Product added successfully!");
+        resetForm();
+        fetchProducts();
       }
-
-      resetForm();
-      fetchProducts();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving product:", error);
-      alert("Error saving product");
+      alert(error.response?.data?.message || "Error saving product");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -263,13 +338,17 @@ const ProductManagement: React.FC = () => {
   const handleDelete = async (productId: number) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
-        const token = localStorage.getItem("adminToken");
+        setLoading(true);
         await axios.delete(`http://localhost:5000/admin/products/${productId}`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: getAuthHeaders()
         });
+        alert("Product deleted successfully!");
         fetchProducts();
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error deleting product:", error);
+        alert(error.response?.data?.message || "Error deleting product");
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -301,31 +380,91 @@ const ProductManagement: React.FC = () => {
     setFilteredCategories([]);
     setEditingProduct(null);
     setShowForm(false);
+    setError("");
   };
+
+  const renderMediaPreview = (fieldName: keyof FileState, label: string, required: boolean = false) => (
+    <div className="admin-form-group">
+      <label>{label} {required && <span style={{color: 'red'}}>*</span>}</label>
+      <input
+        type="file"
+        name={fieldName}
+        onChange={handleFileChange}
+        accept="image/*,video/*"
+        className="admin-file-input-field"
+        required={false}
+      />
+      {imagePreviews[fieldName] && (
+        <div style={{ marginTop: '10px', position: 'relative', display: 'inline-block' }}>
+          {files[fieldName] && isVideo(files[fieldName]!) ? (
+            <video 
+              src={imagePreviews[fieldName]} 
+              style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px' }}
+              controls
+            />
+          ) : (
+            <img 
+              src={imagePreviews[fieldName]} 
+              alt={`${label} preview`} 
+              style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px' }}
+            />
+          )}
+          <button 
+            type="button" 
+            onClick={() => removeImage(fieldName)}
+            style={{ 
+              position: 'absolute', 
+              top: '-5px', 
+              right: '-5px', 
+              background: 'red', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '50%', 
+              width: '20px', 
+              height: '20px', 
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <FaTimes size={10} />
+          </button>
+        </div>
+      )}
+    </div>
+  );
 
   if (showForm) {
     return (
       <div style={{ padding: '15px', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
         <div style={{ background: 'white', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', padding: '30px', maxWidth: '1200px', margin: '0 auto' }}>
           <div className="admin-form-header">
-            <button className="admin-back-btn" onClick={resetForm}>
+            <button className="admin-back-btn" onClick={resetForm} disabled={loading}>
               <FaArrowLeft /> Back
             </button>
             <h2>{editingProduct ? "Edit Product" : "Add New Product"}</h2>
           </div>
+
+          {error && (
+            <div style={{ background: '#fee', color: '#c53030', padding: '10px', borderRadius: '4px', marginBottom: '20px' }}>
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="admin-form">
             <div className="admin-form-section">
               <h3>Product Classification</h3>
               <div className="admin-form-row">
                 <div className="admin-form-group">
-                  <label>Type *</label>
+                  <label>Type <span style={{color: 'red'}}>*</span></label>
                   <select
                     name="type_name"
                     value={formData.type_name}
                     onChange={handleTypeChange}
                     required
                     className="admin-input"
+                    disabled={loading}
                   >
                     <option value="">-- Select Type --</option>
                     {types.map(type => (
@@ -336,14 +475,14 @@ const ProductManagement: React.FC = () => {
                   </select>
                 </div>
                 <div className="admin-form-group">
-                  <label>Category *</label>
+                  <label>Category <span style={{color: 'red'}}>*</span></label>
                   <select
                     name="catagory_id"
                     value={formData.catagory_id}
                     onChange={handleCategoryChange}
                     required
                     className="admin-input"
-                    disabled={!formData.type_name}
+                    disabled={!formData.type_name || loading}
                   >
                     <option value="">-- Select Category --</option>
                     {filteredCategories.map(category => (
@@ -360,7 +499,7 @@ const ProductManagement: React.FC = () => {
               <h3>Basic Information</h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', alignItems: 'start', marginBottom: '16px' }}>
                 <div className="admin-form-group">
-                  <label>Product Name *</label>
+                  <label>Product Name <span style={{color: 'red'}}>*</span></label>
                   <input
                     type="text"
                     name="p_name"
@@ -369,10 +508,11 @@ const ProductManagement: React.FC = () => {
                     required
                     className="admin-input"
                     placeholder="Enter product name"
+                    disabled={loading}
                   />
                 </div>
                 <div className="admin-form-group">
-                  <label>Product Code *</label>
+                  <label>Product Code <span style={{color: 'red'}}>*</span></label>
                   <input
                     type="text"
                     name="p_code"
@@ -381,10 +521,11 @@ const ProductManagement: React.FC = () => {
                     required
                     className="admin-input"
                     placeholder="Enter unique product code"
+                    disabled={loading}
                   />
                 </div>
                 <div className="admin-form-group">
-                  <label>Price *</label>
+                  <label>Price <span style={{color: 'red'}}>*</span></label>
                   <input
                     type="number"
                     name="p_price"
@@ -395,6 +536,7 @@ const ProductManagement: React.FC = () => {
                     required
                     className="admin-input"
                     placeholder="0.00"
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -412,6 +554,7 @@ const ProductManagement: React.FC = () => {
                     rows={4}
                     className="admin-input"
                     placeholder="Key product details and specifications"
+                    disabled={loading}
                   />
                 </div>
                 <div className="admin-form-group">
@@ -423,6 +566,7 @@ const ProductManagement: React.FC = () => {
                     rows={4}
                     className="admin-input"
                     placeholder="Complete product description"
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -430,146 +574,16 @@ const ProductManagement: React.FC = () => {
 
             <div className="admin-form-section">
               <h3>Product Media</h3>
-              <p style={{ color: '#666', fontSize: '14px', marginBottom: '20px' }}>* First two files are mandatory. Supports images and videos.</p>
+              <p style={{ color: '#666', fontSize: '14px', marginBottom: '20px' }}>
+                Supports images and videos (max 50MB each). Files are optional.
+              </p>
               <div className="admin-form-row">
-                <div className="admin-form-group">
-                  <label>Main Media *</label>
-                  <input
-                    type="file"
-                    name="fileToUpload"
-                    onChange={handleFileChange}
-                    accept="image/*,video/*"
-                    className="admin-file-input-field"
-                  />
-                  {imagePreviews.fileToUpload && (
-                    <div style={{ marginTop: '10px', position: 'relative', display: 'inline-block' }}>
-                      {files.fileToUpload && isVideo(files.fileToUpload) ? (
-                        <video 
-                          src={imagePreviews.fileToUpload} 
-                          style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px' }}
-                          controls
-                        />
-                      ) : (
-                        <img 
-                          src={imagePreviews.fileToUpload} 
-                          alt="Main preview" 
-                          style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px' }}
-                        />
-                      )}
-                      <button 
-                        type="button" 
-                        onClick={() => removeImage('fileToUpload')}
-                        style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer' }}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  )}
-                </div>
-                <div className="admin-form-group">
-                  <label>Media 1 *</label>
-                  <input
-                    type="file"
-                    name="image1"
-                    onChange={handleFileChange}
-                    accept="image/*,video/*"
-                    className="admin-file-input-field"
-                  />
-                  {imagePreviews.image1 && (
-                    <div style={{ marginTop: '10px', position: 'relative', display: 'inline-block' }}>
-                      {files.image1 && isVideo(files.image1) ? (
-                        <video 
-                          src={imagePreviews.image1} 
-                          style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px' }}
-                          controls
-                        />
-                      ) : (
-                        <img 
-                          src={imagePreviews.image1} 
-                          alt="Media 1 preview" 
-                          style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px' }}
-                        />
-                      )}
-                      <button 
-                        type="button" 
-                        onClick={() => removeImage('image1')}
-                        style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer' }}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  )}
-                </div>
+                {renderMediaPreview('fileToUpload', 'Main Media')}
+                {renderMediaPreview('image1', 'Media 1')}
               </div>
               <div className="admin-form-row">
-                <div className="admin-form-group">
-                  <label>Media 2 (Optional)</label>
-                  <input
-                    type="file"
-                    name="image2"
-                    onChange={handleFileChange}
-                    accept="image/*,video/*"
-                    className="admin-file-input-field"
-                  />
-                  {imagePreviews.image2 && (
-                    <div style={{ marginTop: '10px', position: 'relative', display: 'inline-block' }}>
-                      {files.image2 && isVideo(files.image2) ? (
-                        <video 
-                          src={imagePreviews.image2} 
-                          style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px' }}
-                          controls
-                        />
-                      ) : (
-                        <img 
-                          src={imagePreviews.image2} 
-                          alt="Media 2 preview" 
-                          style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px' }}
-                        />
-                      )}
-                      <button 
-                        type="button" 
-                        onClick={() => removeImage('image2')}
-                        style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer' }}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  )}
-                </div>
-                <div className="admin-form-group">
-                  <label>Media 3 (Optional)</label>
-                  <input
-                    type="file"
-                    name="image3"
-                    onChange={handleFileChange}
-                    accept="image/*,video/*"
-                    className="admin-file-input-field"
-                  />
-                  {imagePreviews.image3 && (
-                    <div style={{ marginTop: '10px', position: 'relative', display: 'inline-block' }}>
-                      {files.image3 && isVideo(files.image3) ? (
-                        <video 
-                          src={imagePreviews.image3} 
-                          style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px' }}
-                          controls
-                        />
-                      ) : (
-                        <img 
-                          src={imagePreviews.image3} 
-                          alt="Media 3 preview" 
-                          style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px' }}
-                        />
-                      )}
-                      <button 
-                        type="button" 
-                        onClick={() => removeImage('image3')}
-                        style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer' }}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  )}
-                </div>
+                {renderMediaPreview('image2', 'Media 2')}
+                {renderMediaPreview('image3', 'Media 3')}
               </div>
             </div>
 
@@ -582,6 +596,7 @@ const ProductManagement: React.FC = () => {
                   value={formData.status}
                   onChange={handleInputChange}
                   className="admin-input"
+                  disabled={loading}
                 >
                   <option value="y">Active</option>
                   <option value="n">Inactive</option>
@@ -590,11 +605,11 @@ const ProductManagement: React.FC = () => {
             </div>
 
             <div className="admin-form-actions">
-              <button type="button" className="admin-btn-secondary" onClick={resetForm}>
+              <button type="button" className="admin-btn-secondary" onClick={resetForm} disabled={loading}>
                 Cancel
               </button>
-              <button type="submit" className="admin-btn-primary">
-                {editingProduct ? "Update Product" : "Add Product"}
+              <button type="submit" className="admin-btn-primary" disabled={loading}>
+                {loading ? "Saving..." : (editingProduct ? "Update Product" : "Add Product")}
               </button>
             </div>
           </form>
@@ -607,7 +622,7 @@ const ProductManagement: React.FC = () => {
     <div className="admin-product-management">
       <div className="admin-header">
         <h1>Product Management</h1>
-        <button className="admin-add-btn" onClick={() => setShowForm(true)}>
+        <button className="admin-add-btn" onClick={() => setShowForm(true)} disabled={loading}>
           <FaPlus /> Add New Product
         </button>
       </div>
@@ -621,9 +636,16 @@ const ProductManagement: React.FC = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="admin-search-input"
+            disabled={loading}
           />
         </div>
       </div>
+
+      {error && (
+        <div style={{ background: '#fee', color: '#c53030', padding: '10px', borderRadius: '4px', marginBottom: '20px' }}>
+          {error}
+        </div>
+      )}
 
       <div className="admin-table-container">
         <table className="admin-table">
@@ -638,46 +660,68 @@ const ProductManagement: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {products.map((product) => (
-              <tr key={product.p_id}>
-                <td>
-                  <div className="admin-product-image">
-                    {product.fileToUpload ? (
-                      <img
-                        src={`http://localhost:5000/uploads/${product.fileToUpload.replace(/^.*[\\\\\\/]/, '')}`}
-                        alt={product.p_name}
-                        style={{ display: 'block' }}
-                      />
-                    ) : (
-                      <div className="admin-product-placeholder">No Image</div>
-                    )}
-                  </div>
-                </td>
-                <td>
-                  <div className="admin-product-info">
-                    <strong>{product.p_name}</strong>
-                    <small>{product.p_description?.substring(0, 50)}...</small>
-                  </div>
-                </td>
-                <td>{product.catagory_name}</td>
-                <td>₹{product.p_price}</td>
-                <td>
-                  <span className={`admin-status-badge ${product.status === "y" ? "active" : "inactive"}`}>
-                    {product.status === "y" ? "Active" : "Inactive"}
-                  </span>
-                </td>
-                <td>
-                  <div className="admin-actions">
-                    <button className="admin-action-btn edit" onClick={() => handleEdit(product)}>
-                      <FaEdit />
-                    </button>
-                    <button className="admin-action-btn delete" onClick={() => handleDelete(product.p_id)}>
-                      <FaTrash />
-                    </button>
-                  </div>
+            {loading ? (
+              <tr>
+                <td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>
+                  Loading products...
                 </td>
               </tr>
-            ))}
+            ) : products.length === 0 ? (
+              <tr>
+                <td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>
+                  No products found
+                </td>
+              </tr>
+            ) : (
+              products.map((product) => (
+                <tr key={product.p_id}>
+                  <td>
+                    <div className="admin-product-image">
+                      {product.fileToUpload ? (
+                        <img
+                          src={`http://localhost:5000/uploads/${product.fileToUpload.replace(/^.*[\\\\\\/]/, '')}`}
+                          alt={product.p_name}
+                          style={{ display: 'block' }}
+                        />
+                      ) : (
+                        <div className="admin-product-placeholder">No Image</div>
+                      )}
+                    </div>
+                  </td>
+                  <td>
+                    <div className="admin-product-info">
+                      <strong>{product.p_name}</strong>
+                      <small>{product.p_description?.substring(0, 50)}...</small>
+                    </div>
+                  </td>
+                  <td>{product.catagory_name}</td>
+                  <td>₹{product.p_price}</td>
+                  <td>
+                    <span className={`admin-status-badge ${product.status === "y" ? "active" : "inactive"}`}>
+                      {product.status === "y" ? "Active" : "Inactive"}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="admin-actions">
+                      <button 
+                        className="admin-action-btn edit" 
+                        onClick={() => handleEdit(product)}
+                        disabled={loading}
+                      >
+                        <FaEdit />
+                      </button>
+                      <button 
+                        className="admin-action-btn delete" 
+                        onClick={() => handleDelete(product.p_id)}
+                        disabled={loading}
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -687,7 +731,7 @@ const ProductManagement: React.FC = () => {
           <button
             className="admin-pagination-btn"
             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-            disabled={currentPage === 1}
+            disabled={currentPage === 1 || loading}
           >
             Previous
           </button>
@@ -697,7 +741,7 @@ const ProductManagement: React.FC = () => {
           <button
             className="admin-pagination-btn"
             onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || loading}
           >
             Next
           </button>
@@ -707,4 +751,4 @@ const ProductManagement: React.FC = () => {
   );
 };
 
-export default ProductManagement;
+export default ProductManagementNew;

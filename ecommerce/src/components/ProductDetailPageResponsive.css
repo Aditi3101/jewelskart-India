@@ -1,136 +1,78 @@
-/* Desktop styles for carousel arrows */
-.custom-carousel-control {
-  width: 32px;
-  height: 32px;
-}
-
-.custom-carousel-arrow {
-  margin-top: 300px;
-  width: 24px;
-  height: 24px;
-}
-
 /* Mobile responsive styles for ProductDetailPage */
 @media (max-width: 768px) {
-  div[style*="display: flex"] {
-    flex-direction: column !important;
-    gap: 20px !important;
-  }
-
-  /* Remove right side spacing */
   .product-detail-container {
-    max-width: 100% !important;
-    margin: 0 !important;
-    padding: 0 10px !important;
-    width: 100% !important;
+    padding: 10px 5px !important;
   }
-
-  /* Make carousel full width */
-  .product-detail-left,
-  .product-detail-flex > div:nth-child(2) {
-    max-width: 100% !important;
-    width: 100% !important;
+  
+  .product-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+    justify-items: center !important;
   }
+  
+  .carousel-container {
+    padding: 15px !important;
+    aspect-ratio: 1 !important;
+    max-height: 500px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+  }
+  
+  .carousel-arrows {
+    width: 35px !important;
+    height: 35px !important;
+    font-size: 16px !important;
+  }
+  
+  .thumbnail-grid {
+    gap: 8px !important;
+  }
+  
+  .thumbnail-item {
+    width: 60px !important;
+    height: 60px !important;
+  }
+  
+  .product-title {
+    font-size: 1.8rem !important;
+  }
+  
+  .product-price {
+    font-size: 1.5rem !important;
+  }
+  
+  .action-buttons {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  
+  .action-buttons button {
+    width: 100% !important;
+    padding: 14px !important;
+  }
+  
+  .reviews-section {
+    padding: 20px !important;
+    margin: 40px auto 0 !important;
+  }
+}
 
-  /* Carousel image container */
-  div[style*="backgroundColor: #fff"] {
+@media (max-width: 480px) {
+  .carousel-container {
     padding: 10px !important;
-    margin-bottom: 15px !important;
-    border-radius: 8px !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-
-  /* Carousel image */
-  div[style*="backgroundColor: #fff"] > img {
-    width: 100% !important;
     max-height: 300px !important;
-    object-fit: contain !important;
-    border-radius: 8px !important;
   }
-
-  /* Carousel arrows */
-  .custom-carousel-control {
-    width: 36px !important;
-    height: 36px !important;
-    bottom: 10px !important;
+  
+  .product-title {
+    font-size: 1.5rem !important;
   }
-
-  .custom-carousel-arrow {
-    width: 20px !important;
-    height: 20px !important;
+  
+  .thumbnail-item {
+    width: 50px !important;
+    height: 50px !important;
   }
-
-  /* Carousel arrows position */
-  .carousel-control-prev.custom-carousel-control {
-    left: 5px !important;
-  }
-
-  .carousel-control-next.custom-carousel-control {
-    right: 5px !important;
-  }
-
-  /* Product info container */
-  div[style*="flex: 1"][style*="maxWidth: 50%"]:not([style*="backgroundColor"]) {
-    max-width: 100% !important;
-    padding: 10px !important;
-  }
-
-  /* Headings and text */
-  h1 {
-    font-size: 1.6rem !important;
-    margin-bottom: 12px !important;
-    font-weight: 700 !important;
-  }
-
-  p {
-    font-size: 0.9rem !important;
-    line-height: 1.4 !important;
-    margin-bottom: 12px !important;
-    color: #444 !important;
-  }
-
-  /* Breadcrumb */
-  nav[style*="fontSize: 14px"] {
-    font-size: 0.85rem !important;
-    color: #666 !important;
-    margin-bottom: 15px !important;
-  }
-
-  /* Size selector */
-  select {
-    width: 100% !important;
-    margin-top: 10px !important;
-    padding: 10px !important;
-    border-radius: 6px !important;
-    font-size: 1rem !important;
-  }
-
-  /* Buttons */
-  button {
-    width: 100% !important;
-    padding: 14px 0 !important;
-    font-size: 1rem !important;
-    border-radius: 8px !important;
-    font-weight: 700 !important;
-    cursor: pointer !important;
-    letter-spacing: 1px !important;
-  }
-
-  button:hover {
-    opacity: 0.9 !important;
-  }
-
-  /* Add to cart button */
-  button[style*="backgroundColor: #a67c6d"] {
-    background-color: #a9746e !important;
-    border: none !important;
-    color: white !important;
-  }
-
-  /* Wishlist button */
-  button[style*="border: 2px solid #a67c6d"] {
-    background-color: white !important;
-    border: 2px solid #a9746e !important;
-    color: #a9746e !important;
+  
+  .reviews-section {
+    padding: 15px !important;
   }
 }

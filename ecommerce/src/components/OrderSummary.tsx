@@ -109,34 +109,52 @@ const OrderSummary: React.FC = () => {
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/place-order",
-        {
-          user,
-          cart,
-          subtotal,
-          gst,
-          total: subtotal + gst,
-        },
-        {
-          headers: {
-            "x-api-key": API_KEY,
-          },
-        }
-      );
+      // Initiate payment with CCAvenue
+      const paymentRes = await axios.post('http://localhost:5000/initiate-payment', {
+        user,
+        cart,
+        subtotal,
+        gst,
+        total: totalPayable
+      }, {
+        headers: { "x-api-key": API_KEY }
+      });
 
-      if (response.data.success) {
-        // 🔹 Redirect to order placed page instead of alert
-        window.location.href = "/order-placed";
-        setInvoiceUrl(response.data.invoiceUrl || null);
-        setCart([]);
-        setSubtotal(0);
+      if (paymentRes.data.success) {
+        // Check if this is a fallback response (no payment gateway)
+        if (paymentRes.data.redirect) {
+          window.location.href = paymentRes.data.redirect;
+          return;
+        }
+        
+        // Redirect to payment gateway
+        const { paymentData, ccavenueUrl } = paymentRes.data;
+        
+        // Create form and submit to CCAvenue
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = ccavenueUrl;
+        
+        const encRequestInput = document.createElement('input');
+        encRequestInput.type = 'hidden';
+        encRequestInput.name = 'encRequest';
+        encRequestInput.value = paymentData.encRequest;
+        
+        const accessCodeInput = document.createElement('input');
+        accessCodeInput.type = 'hidden';
+        accessCodeInput.name = 'access_code';
+        accessCodeInput.value = paymentData.accessCode;
+        
+        form.appendChild(encRequestInput);
+        form.appendChild(accessCodeInput);
+        document.body.appendChild(form);
+        form.submit();
       } else {
-        alert("Failed to place order.");
+        alert('Failed to initiate payment');
       }
     } catch (error) {
-      console.error("Error placing order:", error);
-      alert("Failed to place order. Try again.");
+      console.error('Payment initiation error:', error);
+      alert('Failed to process payment. Please try again.');
     }
   };
 
@@ -254,7 +272,7 @@ const OrderSummary: React.FC = () => {
           </div>
 
           <button className="continue-btn" onClick={handlePlaceOrder}>
-            PLACE ORDER
+            PAY NOW - ₹{totalPayable.toFixed(2)}
           </button>
 
           {invoiceUrl && (

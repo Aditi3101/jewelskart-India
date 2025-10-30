@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CCAvenue Payment Debug</title>
+</head>
+<body>
+    <h2>🔍 CCAvenue Payment Debug</h2>
+    
+    <button onclick="testBackend()">1. Test Backend Health</button>
+    <button onclick="testPaymentCreation()">2. Test Payment Creation</button>
+    <button onclick="testDirectSubmit()">3. Test Direct CCAvenue Submit</button>
+    
+    <div id="results" style="margin-top: 20px; padding: 10px; background: #f5f5f5;"></div>
+    
+    <script>
+        const log = (message) => {
+            document.getElementById('results').innerHTML += '<p>' + message + '</p>';
+        };
+        
+        async function testBackend() {
+            log('🔄 Testing backend health...');
+            try {
+                const response = await fetch('http://localhost:5000/health');
+                const data = await response.json();
+                log('✅ Backend Health: ' + JSON.stringify(data, null, 2));
+            } catch (error) {
+                log('❌ Backend Error: ' + error.message);
+            }
+        }
+        
+        async function testPaymentCreation() {
+            log('🔄 Testing payment creation...');
+            try {
+                const response = await fetch('http://localhost:5000/api/create-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': 'your_super_secret_api_key_123'
+                    },
+                    body: JSON.stringify({
+                        orderId: 'TEST_' + Date.now(),
+                        amount: 100.00,
+                        customerName: 'Test User',
+                        customerEmail: 'test@example.com',
+                        customerPhone: '9999999999',
+                        billingAddress: 'Test Address'
+                    })
+                });
+                
+                const data = await response.json();
+                log('✅ Payment Creation Response: ' + JSON.stringify(data, null, 2));
+                
+                if (data.success && data.paymentData) {
+                    log('🎯 CCAvenue URL: ' + data.ccavenueUrl);
+                    log('🔐 Encrypted Data: ' + data.paymentData.encRequest.substring(0, 50) + '...');
+                    
+                    // Store for direct submit test
+                    window.testPaymentData = data;
+                }
+            } catch (error) {
+                log('❌ Payment Creation Error: ' + error.message);
+            }
+        }
+        
+        function testDirectSubmit() {
+            if (!window.testPaymentData) {
+                log('❌ No payment data available. Run "Test Payment Creation" first.');
+                return;
+            }
+            
+            log('🔄 Creating direct form submission to CCAvenue...');
+            
+            const { paymentData, ccavenueUrl } = window.testPaymentData;
+            
+            // Create form
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = ccavenueUrl;
+            form.target = '_blank';
+            
+            // Add encrypted request
+            const encRequestInput = document.createElement('input');
+            encRequestInput.type = 'hidden';
+            encRequestInput.name = 'encRequest';
+            encRequestInput.value = paymentData.encRequest;
+            form.appendChild(encRequestInput);
+            
+            // Add access code
+            const accessCodeInput = document.createElement('input');
+            accessCodeInput.type = 'hidden';
+            accessCodeInput.name = 'access_code';
+            accessCodeInput.value = paymentData.accessCode;
+            form.appendChild(accessCodeInput);
+            
+            // Submit form
+            document.body.appendChild(form);
+            log('✅ Submitting form to: ' + ccavenueUrl);
+            form.submit();
+            document.body.removeChild(form);
+            
+            log('🎯 Check if CCAvenue payment page opened in new tab');
+        }
+    </script>
+</body>
+</html>

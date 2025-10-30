@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Open+Sans:wght@300;400;500;600;700&display=swap');
 @import './styles/theme.css';
 
 html, body {
@@ -8,10 +9,19 @@ body, html, #root {
   margin: 0;
   padding: 0;
   height: 100%;
-  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Open Sans', sans-serif;
   scroll-behavior: smooth;
   background: var(--bg-primary);
   color: var(--text-primary);
+}
+
+/* Global Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', sans-serif;
+}
+
+p, span, div, a, button, input, textarea, label {
+  font-family: 'Open Sans', sans-serif;
 }
 
 /* Banner Card css */

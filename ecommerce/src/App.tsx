@@ -37,6 +37,10 @@ import SEOProductWrapper from "./components/SEOProductWrapper";
 import SEOTest from "./components/SEOTest";
 import CategoryDebug from "./components/CategoryDebug";
 import ProductDebug from "./components/ProductDebug";
+import PaymentSuccess from "./components/PaymentSuccess";
+import PaymentFailed from "./components/PaymentFailed";
+import CheckoutDemo from "./components/CheckoutDemo";
+import ResetPassword from "./components/ResetPassword";
 
 const HomePage: React.FC = () => {
   return (
@@ -101,6 +105,10 @@ const App: React.FC = () => {
           <Route path="/seo-test" element={<SEOTest />} />
           <Route path="/category-debug" element={<CategoryDebug />} />
           <Route path="/product-debug" element={<ProductDebug />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-failed" element={<PaymentFailed />} />
+          <Route path="/checkout-demo" element={<CheckoutDemo />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
 
         <ToastContainer position="top-center" autoClose={2000} />

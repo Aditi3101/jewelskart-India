@@ -42,7 +42,7 @@ const HomeCarousel: React.FC = () => {
   if (banners.length === 0) return <p className="text-center">No banners available.</p>;
 
   return (
-    <section className="home-carousel-section py-4">
+    <section className="home-carousel-section">
       <div className="container-fluid px-0">
         <div className="text-center mb-3">
           <h1 className="carousel-title">Timeless Elegance In Every Piece</h1>
@@ -78,7 +78,7 @@ const HomeCarousel: React.FC = () => {
                       alt={banner.title}
                       loading={index === 0 ? "eager" : "lazy"}
                     />
-                    <div className="carousel-overlay"></div>
+                    {index !== 1 && <div className="carousel-overlay"></div>}
                   </div>
                   {banner.title && (
                     <div className="carousel-caption">
@@ -152,9 +152,15 @@ const HomeCarousel: React.FC = () => {
           width: 100%;
           height: 100%;
           object-fit: cover;
+          object-position: center bottom;
           transition: transform 0.3s ease;
+          display: block;
         }
 
+        .carousel-item:nth-child(2) .carousel-overlay {
+          display: none;
+        }
+        
         .carousel-overlay {
           position: absolute;
           top: 0;

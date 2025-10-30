@@ -14,8 +14,11 @@ interface Review {
 
 const ReviewSection: React.FC = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [displayedReviews, setDisplayedReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAll, setShowAll] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const reviewsPerPage = 6;
 
   useEffect(() => {
     fetchReviews();
@@ -23,15 +26,34 @@ const ReviewSection: React.FC = () => {
 
   const fetchReviews = async () => {
     try {
-      const response = await axios.get("https://jewelskart-backend.onrender.com/api/all-reviews", {
-        headers: { "x-api-key": "your_super_secret_api_key_123" }
-      });
-      setReviews(response.data);
+      const response = await axios.get("http://localhost:5000/api/all-reviews");
+      if (response.data.success) {
+        setReviews(response.data.reviews);
+        setDisplayedReviews(response.data.reviews.slice(0, reviewsPerPage));
+      }
     } catch (error) {
       console.error("Error fetching reviews:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadMoreReviews = () => {
+    setLoadingMore(true);
+    const nextPage = currentPage + 1;
+    const startIndex = nextPage * reviewsPerPage;
+    const newReviews = reviews.slice(0, startIndex);
+    
+    setTimeout(() => {
+      setDisplayedReviews(newReviews);
+      setCurrentPage(nextPage);
+      setLoadingMore(false);
+    }, 500);
+  };
+
+  const showLessReviews = () => {
+    setDisplayedReviews(reviews.slice(0, reviewsPerPage));
+    setCurrentPage(1);
   };
 
   const renderStars = (rating: number) => {
@@ -97,7 +119,7 @@ const ReviewSection: React.FC = () => {
           gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
           gap: '30px'
         }}>
-          {(showAll ? reviews : reviews.slice(0, 6)).map((review) => (
+          {displayedReviews.map((review) => (
             <div key={review.review_id} style={{
               background: 'white',
               borderRadius: '12px',
@@ -158,15 +180,61 @@ const ReviewSection: React.FC = () => {
           ))}
         </div>
         
-        {reviews.length > 6 && (
-          <div style={{ textAlign: 'center', marginTop: '40px' }}>
+        <div style={{ textAlign: 'center', marginTop: '40px', display: 'flex', gap: '15px', justifyContent: 'center' }}>
+          {displayedReviews.length < reviews.length && (
             <button 
-              onClick={() => setShowAll(!showAll)}
+              onClick={loadMoreReviews}
+              disabled={loadingMore}
               style={{
-                background: showAll ? '#590330' : 'transparent',
-                color: showAll ? 'white' : '#590330',
+                background: loadingMore ? '#ccc' : 'transparent',
+                color: loadingMore ? '#666' : '#590330',
                 border: '2px solid #590330',
-                padding: '10px 25px',
+                padding: '12px 30px',
+                borderRadius: '25px',
+                fontSize: '0.9rem',
+                fontWeight: '500',
+                cursor: loadingMore ? 'not-allowed' : 'pointer',
+                transition: 'all 0.3s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+              onMouseEnter={(e) => {
+                if (!loadingMore) {
+                  e.currentTarget.style.background = '#590330';
+                  e.currentTarget.style.color = 'white';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loadingMore) {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = '#590330';
+                }
+              }}
+            >
+              {loadingMore && (
+                <div style={{
+                  width: '16px',
+                  height: '16px',
+                  border: '2px solid #666',
+                  borderTop: '2px solid transparent',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite'
+                }} />
+              )}
+              {loadingMore ? 'Loading...' : 'Load More Reviews'}
+            </button>
+          )}
+          
+          {displayedReviews.length > reviewsPerPage && (
+            <button 
+              onClick={showLessReviews}
+              style={{
+                background: '#590330',
+                color: 'white',
+                border: '2px solid #590330',
+                padding: '12px 30px',
                 borderRadius: '25px',
                 fontSize: '0.9rem',
                 fontWeight: '500',
@@ -174,22 +242,25 @@ const ReviewSection: React.FC = () => {
                 transition: 'all 0.3s ease'
               }}
               onMouseEnter={(e) => {
-                if (!showAll) {
-                  e.currentTarget.style.background = '#590330';
-                  e.currentTarget.style.color = 'white';
-                }
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = '#590330';
               }}
               onMouseLeave={(e) => {
-                if (!showAll) {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.color = '#590330';
-                }
+                e.currentTarget.style.background = '#590330';
+                e.currentTarget.style.color = 'white';
               }}
             >
-              {showAll ? 'Show Less' : 'View All Reviews'}
+              Show Less
             </button>
-          </div>
-        )}
+          )}
+        </div>
+        
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
     </section>
   );

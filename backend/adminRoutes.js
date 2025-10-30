@@ -386,7 +386,34 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 100 * 1024 * 1024 }, // 100MB limit for videos
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp|mp4|webm|ogg|mov|avi/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype) || file.mimetype.startsWith('video/');
+    
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only images and videos are allowed!'));
+    }
+  }
+});
+
+// Test endpoint
+router.post("/test", verifyAdminToken, (req, res) => {
+  console.log('Test endpoint hit');
+  console.log('Request body:', req.body);
+  res.json({ success: true, message: 'Test successful' });
+});
+
+// Simple delete test
+router.delete("/test-delete/:id", verifyAdminToken, (req, res) => {
+  console.log('Test delete endpoint hit with ID:', req.params.id);
+  res.json({ success: true, message: 'Test delete successful' });
+});
 
 // ==========================
 // Add Product (POST)
@@ -418,6 +445,27 @@ router.post(
         status,
       } = req.body;
 
+      // Validate required fields
+      if (!p_name || !p_code || !p_price || !catagory_name) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Product name, code, price, and category are required" 
+        });
+      }
+
+      // Check if product code already exists
+      const [existingProduct] = await db.promise().query(
+        "SELECT p_id FROM products WHERE p_code = ?",
+        [p_code]
+      );
+      
+      if (existingProduct.length > 0) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Product code already exists" 
+        });
+      }
+
       const fileToUpload = req.files["fileToUpload"]
         ? req.files["fileToUpload"][0].filename
         : null;
@@ -431,34 +479,49 @@ router.post(
         ? req.files["image3"][0].filename
         : null;
 
+      // Insert product with core fields first
       const [result] = await db
         .promise()
         .query(
-          `
-        INSERT INTO products 
-        (type_name, sub_type, catagory_id, catagory_name, collection_name, p_name, subname, p_code, p_details, p_description, small_description, p_price, fileToUpload, image1, image2, image3, status) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `,
+          `INSERT INTO products (
+            type_name, catagory_id, catagory_name, p_name, p_code, p_details, p_description, p_price, status
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
-            type_name,
-            sub_type,
-            catagory_id,
-            catagory_name,
-            collection_name,
-            p_name,
-            subname,
-            p_code,
-            p_details,
-            p_description,
-            small_description,
-            p_price,
-            fileToUpload,
-            image1,
-            image2,
-            image3,
-            status,
+            type_name || '', catagory_id || null, catagory_name, p_name, p_code,
+            p_details || '', p_description || '',
+            p_price, status || 'y'
           ]
         );
+
+      // Update with files if provided
+      if (fileToUpload || image1 || image2 || image3) {
+        let updateQuery = 'UPDATE products SET ';
+        let updateParams = [];
+        let updates = [];
+        
+        if (fileToUpload) {
+          updates.push('fileToUpload = ?');
+          updateParams.push(fileToUpload);
+        }
+        if (image1) {
+          updates.push('image1 = ?');
+          updateParams.push(image1);
+        }
+        if (image2) {
+          updates.push('image2 = ?');
+          updateParams.push(image2);
+        }
+        if (image3) {
+          updates.push('image3 = ?');
+          updateParams.push(image3);
+        }
+        
+        if (updates.length > 0) {
+          updateQuery += updates.join(', ') + ' WHERE p_id = ?';
+          updateParams.push(result.insertId);
+          await db.promise().query(updateQuery, updateParams);
+        }
+      }
 
       res.json({
         success: true,
@@ -467,7 +530,10 @@ router.post(
       });
     } catch (error) {
       console.error("Add product error:", error);
-      res.status(500).json({ success: false, message: "Server error" });
+      res.status(500).json({ 
+        success: false, 
+        message: error.code === 'ER_DUP_ENTRY' ? "Product code already exists" : "Server error"
+      });
     }
   }
 );
@@ -562,20 +628,15 @@ router.put(
 
       let query = `
         UPDATE products SET 
-        type_name=?, sub_type=?, catagory_id=?, catagory_name=?, collection_name=?, p_name=?, subname=?, 
-        p_code=?, p_details=?, p_description=?, small_description=?, p_price=?, status=?`;
+        type_name=?, catagory_id=?, catagory_name=?, p_name=?, p_code=?, p_details=?, p_description=?, p_price=?, status=?`;
       const params = [
         type_name,
-        sub_type,
         catagory_id,
         catagory_name,
-        collection_name,
         p_name,
-        subname,
         p_code,
         p_details,
         p_description,
-        small_description,
         p_price,
         status,
       ];
@@ -616,29 +677,42 @@ router.put(
 router.delete("/products/:id", verifyAdminToken, async (req, res) => {
   try {
     const { id } = req.params;
-
-    // fetch product images before deleting
-    const [rows] = await db
-      .promise()
-      .query(
-        "SELECT fileToUpload, image1, image2, image3 FROM products WHERE p_id = ?",
-        [id]
-      );
-
-    if (rows.length) {
-      ["fileToUpload", "image1", "image2", "image3"].forEach((field) => {
-        if (rows[0][field]) {
-          const filePath = path.join(process.cwd(), rows[0][field]);
-          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-        }
-      });
+    console.log(`Attempting to delete product with ID: ${id}`);
+    
+    // First get the product code
+    const [productResult] = await db.promise().query("SELECT p_code FROM products WHERE p_id = ?", [id]);
+    
+    if (productResult.length === 0) {
+      return res.status(404).json({ success: false, message: "Product not found" });
     }
-
+    
+    const p_code = productResult[0].p_code;
+    console.log(`Product code: ${p_code}`);
+    
+    // Delete related records first to avoid foreign key constraints
+    console.log('Deleting from cart...');
+    await db.promise().query("DELETE FROM cart WHERE p_code = ?", [p_code]);
+    
+    console.log('Deleting from wishlist...');
+    await db.promise().query("DELETE FROM wishlist WHERE p_code = ?", [p_code]);
+    
+    console.log('Deleting from review_table...');
+    await db.promise().query("DELETE FROM review_table WHERE p_id = ?", [id]);
+    
+    console.log('Deleting from order_items...');
+    await db.promise().query("DELETE FROM order_items WHERE p_id = ?", [id]);
+    
+    // Now delete the product
+    console.log('Deleting product...');
     await db.promise().query("DELETE FROM products WHERE p_id = ?", [id]);
+    
+    console.log('Product deleted successfully');
     res.json({ success: true, message: "Product deleted successfully" });
   } catch (error) {
     console.error("Delete product error:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error("Error message:", error.message);
+    console.error("Error code:", error.code);
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 });
 

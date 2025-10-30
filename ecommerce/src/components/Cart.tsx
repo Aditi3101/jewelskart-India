@@ -573,12 +573,18 @@ const Cart: React.FC = () => {
 
   const handlePlaceOrder = () => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
+    
     if (isLoggedIn !== "true") {
       alert("Please log in to place your order.");
       return;
     }
 
-    // Clear cart if needed: setCart([]);
+    if (cart.length === 0) {
+      alert("Your cart is empty!");
+      return;
+    }
+
+    // Navigate to order summary page
     navigate("/ordersummary");
   };
 
@@ -725,6 +731,7 @@ const Cart: React.FC = () => {
                 <button
                   className="btn btn-primary w-100"
                   onClick={handlePlaceOrder}
+                  disabled={cart.length === 0}
                 >
                   Place Order
                 </button>

@@ -42,7 +42,7 @@ const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ categoryId: pro
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 280px))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
             gap: '24px',
             padding: "0 32px",
             boxSizing: "border-box",
@@ -116,13 +116,14 @@ const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ categoryId: pro
                       fontSize: '1.4rem',
                       fontWeight: '700',
                       marginBottom: '8px',
-                      textShadow: '0 2px 8px rgba(0,0,0,0.5)'
+                      textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                      color: '#590330'
                     }}>
                       {p.p_name}
                     </div>
                     <div style={{
                       fontSize: '0.9rem',
-                      color: '#F8C471',
+                      color: '#590330',
                       textTransform: 'uppercase',
                       letterSpacing: '1px'
                     }}>

@@ -14,6 +14,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar.tsx";
 import MobileSidebar from "./MobileSidebar";
+import ForgotPassword from "./ForgotPassword";
 import "./TopNavBar.css";
 import "./MobileSidebar.css";
 import { useCartWishlist } from "../contexts/CartWishlistContext";
@@ -22,6 +23,8 @@ const API_KEY = "your_super_secret_api_key_123";
 
 const TopNavBar: React.FC = () => {
   const [showLogin, setShowLogin] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
   const [showRegister, setShowRegister] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -163,7 +166,7 @@ const TopNavBar: React.FC = () => {
         fontSize: '0.9rem',
         fontWeight: '500'
       }}>
-        🎉 Special Offer: Get 20% OFF on all jewelry! Use code: SAVE20
+        🎉 Special Offer: Get 20% OFF on all Jewellery! Use code: SAVE20
       </div>
       
       <header className="top-navbar sticky-top py-2 px-3" style={{ background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-light)', boxShadow: '0 2px 20px var(--shadow-light)' }}>
@@ -371,6 +374,19 @@ const TopNavBar: React.FC = () => {
               </button>
             </form>
             <div className="text-center mt-2">
+              <button
+                type="button"
+                className="btn btn-link p-0 text-decoration-none"
+                onClick={() => {
+                  setShowLogin(false);
+                  setShowForgotPassword(true);
+                }}
+                style={{ color: '#590330', fontSize: '0.9rem' }}
+              >
+                Forgot Password?
+              </button>
+            </div>
+            <div className="text-center mt-2">
               Don't have an account?{" "}
               <span
                 className="text-primary"
@@ -485,6 +501,12 @@ const TopNavBar: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Forgot Password Modal */}
+      <ForgotPassword 
+        show={showForgotPassword} 
+        onClose={() => setShowForgotPassword(false)} 
+      />
 
       {/* Login Count Popup */}
       {showLoginCountPopup && totalLoggedInCount !== null && (
