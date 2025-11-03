@@ -447,9 +447,9 @@ router.post(
 
       // Validate required fields
       if (!p_name || !p_code || !p_price || !catagory_name) {
-        return res.status(400).json({ 
-          success: false, 
-          message: "Product name, code, price, and category are required" 
+        return res.status(400).json({
+          success: false,
+          message: "Product name, code, price, and category are required"
         });
       }
 
@@ -458,11 +458,11 @@ router.post(
         "SELECT p_id FROM products WHERE p_code = ?",
         [p_code]
       );
-      
+
       if (existingProduct.length > 0) {
-        return res.status(400).json({ 
-          success: false, 
-          message: "Product code already exists" 
+        return res.status(400).json({
+          success: false,
+          message: "Product code already exists"
         });
       }
 
@@ -479,49 +479,22 @@ router.post(
         ? req.files["image3"][0].filename
         : null;
 
-      // Insert product with core fields first
+      // Insert product with ALL fields in one query
       const [result] = await db
         .promise()
         .query(
           `INSERT INTO products (
-            type_name, catagory_id, catagory_name, p_name, p_code, p_details, p_description, p_price, status
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            type_name, sub_type, catagory_id, catagory_name, collection_name,
+            p_name, subname, p_code, p_details, p_description, small_description,
+            p_price, fileToUpload, image1, image2, image3, status
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
-            type_name || '', catagory_id || null, catagory_name, p_name, p_code,
-            p_details || '', p_description || '',
-            p_price, status || 'y'
+            type_name || '', sub_type || '', catagory_id || null, catagory_name,
+            collection_name || '', p_name, subname || '', p_code,
+            p_details || '', p_description || '', small_description || '',
+            p_price, fileToUpload, image1, image2, image3, status || 'y'
           ]
         );
-
-      // Update with files if provided
-      if (fileToUpload || image1 || image2 || image3) {
-        let updateQuery = 'UPDATE products SET ';
-        let updateParams = [];
-        let updates = [];
-        
-        if (fileToUpload) {
-          updates.push('fileToUpload = ?');
-          updateParams.push(fileToUpload);
-        }
-        if (image1) {
-          updates.push('image1 = ?');
-          updateParams.push(image1);
-        }
-        if (image2) {
-          updates.push('image2 = ?');
-          updateParams.push(image2);
-        }
-        if (image3) {
-          updates.push('image3 = ?');
-          updateParams.push(image3);
-        }
-        
-        if (updates.length > 0) {
-          updateQuery += updates.join(', ') + ' WHERE p_id = ?';
-          updateParams.push(result.insertId);
-          await db.promise().query(updateQuery, updateParams);
-        }
-      }
 
       res.json({
         success: true,
@@ -530,9 +503,11 @@ router.post(
       });
     } catch (error) {
       console.error("Add product error:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: error.code === 'ER_DUP_ENTRY' ? "Product code already exists" : "Server error"
+      console.error("Error details:", error.message);
+      console.error("Error code:", error.code);
+      res.status(500).json({
+        success: false,
+        message: error.code === 'ER_DUP_ENTRY' ? "Product code already exists" : `Server error: ${error.message}`
       });
     }
   }
